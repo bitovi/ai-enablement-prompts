@@ -1,4 +1,4 @@
-Write out a /prompts/temp/folder.YAML file for each folder in the {INPUT_FOLDER} folder in the format:
+Write out a single `/prompts/temp/folder.YAML` file that lists each sub-folder in the {INPUT_FOLDER} folder in the format:
 
 ```YAML
 - {INPUT_FOLDER}/folder1
