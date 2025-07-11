@@ -9,7 +9,7 @@ This AI prompt generates an overview of the contents for each subfolder in a dir
 To use this prompt, write something similar to the following in copilot:
 
 ```
-Run the ai-enablement-prompts/folder-overview prompts on the src/react folder.
+Run the github project `bitovi/ai-enablement-prompts`'s  `folder-overview` prompts on the src/react folder.
 ```
 
 ## Agent Capabilities
