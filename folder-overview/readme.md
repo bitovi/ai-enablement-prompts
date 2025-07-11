@@ -13,8 +13,8 @@ This prompt is expected to be provided the following:
 
 When given an {INPUT_FOLDER} perform the following, please read the following files and follow their instructions in order:
 
-- prompts/1-folder-overview.md
-- prompts/2-folder-overview.md
-- prompts/3-folder-overview.md
+- [./1-folder-overview.md](./1-folder-overview.md)
+- [./2-folder-overview.md](./2-folder-overview.md)
+- [./3-folder-overview.md](./3-folder-overview.md)
 
 and provide each prompt the {INPUT_FOLDER}.
