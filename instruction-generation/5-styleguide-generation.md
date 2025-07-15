@@ -33,4 +33,4 @@ Then you must create:
 - Do **not** include common industry patterns — only extract the conventions that are **unique to this specific codebase**.
 - Do **not** invent patterns — only use what is observed in the codebase.
 
-After writing each of the domain files, read the contents of [./build-features.md](./build-features.md) and proceed accordingly with {output-folder} as the `output-folder`.
+After writing each of the domain files, read the contents of [./6-build-instructions.md](./6-build-instructions.md) and proceed accordingly with {output-folder} as the `output-folder`.

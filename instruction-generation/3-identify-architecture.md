@@ -62,4 +62,4 @@ This analysis will help ensure future additions follow the established architect
 
 You are a senior developer responsible for categorizing every file in the codebase. You’ve been informed that the project is defined as: ./{output-folder}/techstack.md (read this file first)
 
-After writing ./{output-folder}/file-categorization.json, read the contents of [./domain-deep-dive.md](./domain-deep-dive.md) and proceed accordingly with {output-folder} as the `output-folder`.
+After writing ./{output-folder}/file-categorization.json, read the contents of [./4-domain-deep-dive.md](./4-domain-deep-dive.md) and proceed accordingly with {output-folder} as the `output-folder`.

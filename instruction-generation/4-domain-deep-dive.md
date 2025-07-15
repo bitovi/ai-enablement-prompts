@@ -31,4 +31,4 @@ Requirements:
 
 Your goal is to document how the "{domain}" domain is implemented within this specific codebase in such a way that anyone could leverage or add features to it.
 
-After writing each of the domain files, read the contents of [./styleguide-generation.md](./styleguide-generation.md) and proceed accordingly with {output-folder} as the `output-folder`.
+After writing each of the domain files, read the contents of [./5-styleguide-generation.md](./5-styleguide-generation.md) and proceed accordingly with {output-folder} as the `output-folder`.
