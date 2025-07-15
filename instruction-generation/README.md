@@ -9,7 +9,13 @@ This AI prompt chain generates a comprehensive `copilot-instruction.md` file by 
 To use this prompt chain, write something similar to the following in copilot:
 
 ```
-Run the github project `bitovi/ai-enablement-prompts`'s `instruction-generation` prompts with .results/ being the output folder.
+
+
+The `/instruction-generation` folder in `bitovi/ai-enablement-prompts` contains a prompt chain to assist in generating a `copilot-instruction.md` file.
+
+Here's the repo link: https://github.com/bitovi/ai-enablement-prompts. I do not have it locally, you will need to use the github tools to access the files.
+
+Read through it all without executing any to understand the full scope. Then, execute the `instruction-generation/1-determine-techstack.md` prompts with `.results/` being the output folder.
 ```
 
 ## Agent Capabilities
