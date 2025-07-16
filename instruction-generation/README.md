@@ -9,8 +9,6 @@ This AI prompt chain generates a comprehensive `copilot-instruction.md` file by 
 To use this prompt chain, write something similar to the following in copilot:
 
 ```
-
-
 The `/instruction-generation` folder in `bitovi/ai-enablement-prompts` contains a prompt chain to assist in generating a `copilot-instruction.md` file.
 
 Here's the repo link: https://github.com/bitovi/ai-enablement-prompts. I do not have it locally, you will need to use the github tools to access the files.
