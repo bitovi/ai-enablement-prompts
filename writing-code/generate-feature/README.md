@@ -66,6 +66,8 @@ From there, install the following MCP servers:
 2. **Atlassian MCP Server** - For retrieving Jira ticket details
 3. **Figma MCP Server** - For fetching Figma component data and annotations
 
+**Each MCP server will have its own requirements to connect, make sure to review their provided documentation**
+
 ### 2. Add Bitovi MCP Server
 
 In addition to the servers from the VS Code MCP page, you'll need to manually configure the Bitovi MCP server, by adding the following to either your user settings `mcp.json` or your workplace's (`.vscode/mcp.json`):
