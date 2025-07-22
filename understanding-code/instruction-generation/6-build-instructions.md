@@ -13,7 +13,7 @@ You must synthesize the following source materials:
 
 ---
 
-## Your Output: `copilot-instructions.md`
+## Your Output: `/.github/copilot-instructions.md`
 
 This file must include:
 
@@ -88,3 +88,5 @@ Only use categories and file types present in this project.
 - **Do not** omit any categories or domains defined in the analysis
 
 This file must give future LLMs enough information to build new features entirely within project conventions.
+
+To clarify further, the `copilot-instructions.md` file must reside inside a folder called `.github` at the root directory of the project. If `/.github/copilot-instructions.md` already exists, overwrite it.
