@@ -40,7 +40,7 @@ You are assisting with generating a `copilot-instruction.md` file using a multi-
 
 Stop ONLY when:
     - All `instruction-generation` steps are complete
-    - A full `copilot-instruction.md` can be generated.
+    - A full `/.github/copilot-instructions.md` can be generated.
 ```
 
 ## Agent Capabilities
