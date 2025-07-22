@@ -55,12 +55,17 @@ Use the Figma MCP Server to retrieve the following information:
 
 ## Step 5: Implement the Ticket Logic
 
-- Use the enriched ticket content to implement the described functionality
+- Implement the functionality described in the enriched ticket content while following these guidelines:
 
-- **Follow existing team conventions and project architecture**
+**Architecture & Conventions**
 
-- **IMPORTANT** Only implement what is in the ticket. Do not add any features.
-- Prioritize:
-  - Clarity
-  - Maintainability
-  - Modularity
+- Follow existing team conventions and project architecture
+- Prioritize clarity, maintainability, and modularity
+- Only implement what is explicitly described in the ticket—do not add additional features
+
+**UI Implementation**
+
+- Implement only UI elements that are visually present in the provided design reference (Figma, screenshots, mockups)
+- Match the exact styling from the design: borders, padding, fonts, colors, and spacing
+- Replicate the structure and spacing as shown, using raw HTML elements if necessary instead of forcing design system components
+- Do not add containers, headers, wrappers, or other elements not present in the design reference
