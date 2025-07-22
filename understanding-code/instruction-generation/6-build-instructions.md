@@ -1,6 +1,6 @@
 You are a senior AI engineer responsible for bootstrapping a project-specific Copilot experience. The goal is to generate a markdown instruction file at:
 
-`./{output-folder}/copilot-instructions.md`
+`/.github/copilot-instructions.md`
 
 This file will serve as a reusable meta-instruction for any AI assistant to generate **consistent, convention-following features** in this codebase.
 
