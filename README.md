@@ -1,6 +1,10 @@
+<div align="center">
+
 <img width="128" height="128" alt="superhero-dev" src="https://github.com/user-attachments/assets/c716fb81-27e3-4acf-a873-e6425a39e136" />
 
 # AI-Enablement Prompts
+
+</div>
 
 **AI-Enablement Prompts** is a collection of advanced AI prompt chains created by [Bitovi](https://www.bitovi.com), a consultancy on the cutting edge of AI-augmented software development. These prompts are designed to help AI agents like GitHub Copilot move beyond simple autocomplete and become valuable, context-aware teammates.
 
@@ -17,12 +21,12 @@ Prompts in this repo are organized into **high-level categories** based on what 
 
 Each subfolder contains one or more prompts or prompt chains, each with its own `README.md` explaining how to use it.
 
-
 ## What's Inside
 
 Here are a few currently available prompt chains:
 
-### 1. Developer Docs Generator  
+### 1. Developer Docs Generator
+
 **Path:** `understanding-code/instruction-generation`
 
 Generates a `copilot-instruction.md` file that helps AI tools operate effectively within your codebase. Ideal for onboarding AI tools (or humans) with deep, structured context.
@@ -36,7 +40,8 @@ Generates a `copilot-instruction.md` file that helps AI tools operate effectivel
 
 → [View prompt chain](./understanding-code/instruction-generation/README.md)
 
-### 2. Jira Ticket Automation  
+### 2. Jira Ticket Automation
+
 **Path:** `writing-code/generate-feature`
 
 Takes a Jira ticket number and walks the AI through implementing the described feature — including gathering Figma designs and file attachments — then writing the code.
@@ -60,7 +65,7 @@ Takes a Jira ticket number and walks the AI through implementing the described f
 
 ### Getting Started
 
-1. Open the repo: https://github.com/bitovi/ai-enablement-prompts  
+1. Open the repo: https://github.com/bitovi/ai-enablement-prompts
 2. Navigate to the prompt folder you're interested in.
 3. Read the `README.md` for that prompt chain to understand the flow and inputs.
 4. Open Copilot Chat and paste the example input provided.
