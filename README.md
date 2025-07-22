@@ -4,7 +4,7 @@
 
 # AI-Enablement Prompts
 
-<div>
+</div>
 
 **AI-Enablement Prompts** is a collection of advanced AI prompt chains created by [Bitovi](https://www.bitovi.com), a consultancy on the cutting edge of AI-augmented software development. These prompts are designed to help AI agents like GitHub Copilot move beyond simple autocomplete and become valuable, context-aware teammates.
 
