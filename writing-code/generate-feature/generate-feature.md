@@ -24,9 +24,16 @@ You are a **senior software engineer** implementing a feature that automates the
 
 ## Step 3: Gather Supplementary Information
 
-### If Figma links are found:
+### If Figma links are detected:
 
-- Use the **Figma MCP Server** to fetch:
+Use the Figma MCP Server to retrieve the following information:
+
+- **Required (minimum):**
+
+  - Component code
+  - Images
+
+- Additional data:
   - Component descriptions
   - Annotations
   - Metadata
