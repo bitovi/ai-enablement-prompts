@@ -63,7 +63,7 @@ Visit the official VS Code MCP page for installation instructions: https://code.
 From there, install the following MCP servers:
 
 1. **GitHub MCP Server** - For GitHub integration
-2. **Atlassian MCP Server** - For retrieving Jira ticket details
+2. **Atlassian MCP Server** - For retrieving Jira ticket details - `https://mcp.atlassian.com/v1/sse`
 3. **Figma MCP Server** - For fetching Figma component data and annotations
 
 **Each MCP server will have its own requirements to connect, make sure to review their provided documentation**
