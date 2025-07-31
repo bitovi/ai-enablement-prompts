@@ -4,7 +4,7 @@ This project provides an AI prompt chain designed to automate the implementation
 
 ## YouTube Overview
 
-[![generate a feature with AI](https://img.youtube.com/vi/xcoBQaEmuWY/0.jpg)](https://www.youtube.com/watch?v=xcoBQaEmuWY)
+[![generate a feature with AI](https://www.bitovi.com/hubfs/thumbnail-play-small.png)](https://www.youtube.com/watch?v=xcoBQaEmuWY)
 
 https://www.youtube.com/watch?v=xcoBQaEmuWY
 
