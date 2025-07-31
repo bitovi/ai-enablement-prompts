@@ -2,6 +2,12 @@
 
 This project provides an AI prompt chain designed to automate the implementation of Jira tickets by retrieving contextual information from multiple sources, including Atlassian, Figma, and internal attachment servers.
 
+## YouTube Overview
+
+[![generate a feature with AI](https://img.youtube.com/vi/xcoBQaEmuWY/0.jpg)](https://www.youtube.com/watch?v=xcoBQaEmuWY)
+
+https://www.youtube.com/watch?v=xcoBQaEmuWY
+
 ## Overview
 
 This prompt chain guides an AI agent through a series of structured steps that include:
