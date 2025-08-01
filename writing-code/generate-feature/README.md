@@ -81,7 +81,7 @@ In addition to the servers from the VS Code MCP page, you'll need to manually co
 ```json
  "bitovi-staging": {
       "type": "http",
-      "url": "https://jira-mcp-auth-bridge-staging.bitovi.com/mcp"
+      "url": "https://jira-mcp-auth-bridge.bitovi.com/mcp"
     }
 ```
 
