@@ -1,6 +1,3 @@
-{output_folder} = .results
-{final_output_file} = /.github/copilot-instructions.md
-
 ## 1. Determine Techstack
 
 Determine the type of project and summarize the tech stack. Your summary should include:
