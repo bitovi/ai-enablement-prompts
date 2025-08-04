@@ -1,6 +1,6 @@
-You are a senior AI engineer responsible for bootstrapping a project-specific Copilot experience. The goal is to generate a markdown instruction file at:
+You are a senior AI engineer responsible for bootstrapping a project-specific AI agent experience. The goal is to generate a markdown instruction file at:
 
-`/.github/copilot-instructions.md`
+`/{output_folder}/{final_output_file}.md`
 
 This file will serve as a reusable meta-instruction for any AI assistant to generate **consistent, convention-following features** in this codebase.
 
@@ -13,7 +13,7 @@ You must synthesize the following source materials:
 
 ---
 
-## Your Output: `/.github/copilot-instructions.md`
+## Your Output: `/{output_folder}/{final_output_file}.md`
 
 This file must include:
 
@@ -89,4 +89,4 @@ Only use categories and file types present in this project.
 
 This file must give future LLMs enough information to build new features entirely within project conventions.
 
-To clarify further, the `copilot-instructions.md` file must reside inside a folder called `.github` at the root directory of the project. If `/.github/copilot-instructions.md` already exists, overwrite it.
+To clarify further, the `{final_output_file}.md` file must reside inside a folder called `{output_folder}` at the root directory of the project. If `/{output_folder}/{final_output_file}.md` already exists, overwrite it.
