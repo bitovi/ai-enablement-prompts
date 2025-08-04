@@ -63,6 +63,14 @@ This prompt chain is expected to be provided the following:
 - {output_folder} - A path to the folder where generated instruction files will be saved (e.g., `.results/`)
 - {final_output_file} - A file which combines all the work that's been done into a single place eg., `/.github/copilot-instructions.md`)
 
+### Copilot
+- {output_folder} - `.results/`
+- {final_output_file} - `/.github/copilot-instructions.md`
+
+## Windsurf
+- {output_folder} - `.windsurf/rules`
+- {final_output_file} - `/.windsurf/rules/windsurf-instructions.md`
+
 ## Execution
 
 When given an {output_folder}, the AI agent will perform the following steps, reading each file and following it's instructions in order:
