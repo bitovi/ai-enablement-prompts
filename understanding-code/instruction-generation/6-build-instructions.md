@@ -89,4 +89,4 @@ Only use categories and file types present in this project.
 
 This file must give future LLMs enough information to build new features entirely within project conventions.
 
-To clarify further, the `{final_output_file}` if `{final_output_file}` already exists, overwrite it.
+To clarify further, if `{final_output_file}` already exists, overwrite it.
