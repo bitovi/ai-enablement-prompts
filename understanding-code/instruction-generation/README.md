@@ -68,8 +68,10 @@ This prompt chain is expected to be provided the following:
 - {final_output_file} - `/.github/copilot-instructions.md`
 
 ## Windsurf
-- {output_folder} - `.windsurf/rules`
-- {final_output_file} - `/.windsurf/rules/windsurf-instructions.md`
+- {output_folder} - `.windsurf/`
+- {final_output_file} - `/.windsurf/instructions.md`
+
+For Windsurf, you want to move `instructions.md` into the `.windsurf/rules/` directory manually, this is the directory for context files. Cascade is for some reason unable to generate files in there, it doesn't have permission.
 
 ## Execution
 
