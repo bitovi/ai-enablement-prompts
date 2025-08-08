@@ -79,9 +79,9 @@ From there, install the following MCP servers:
 In addition to the servers from the VS Code MCP page, you'll need to manually configure the Bitovi MCP server, by adding the following to either your user settings `mcp.json` or your workplace's (`.vscode/mcp.json`):
 
 ```json
- "bitovi-staging": {
+ "bitovi-jira-mcp": {
       "type": "http",
-      "url": "https://jira-mcp-auth-bridge.bitovi.com/mcp"
+      "url": "jira-mcp-auth-bridge.bitovi.com/mcp"
     }
 ```
 
