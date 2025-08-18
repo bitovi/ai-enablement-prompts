@@ -1,4 +1,4 @@
-You're analyzing a codebase with the goal of understanding its structure and major concerns. The tech stack is summarized in ./{output-folder}/1.techstack.md. Categorized files are listed in ./{output-folder}/2.file-categorization.json.
+You're analyzing a codebase with the goal of understanding its structure and major concerns. The tech stack is summarized in ./{output-folder}/1.techstack.md. Categorized files are listed in ./{output-folder}/2-file-categorization.json.
 
 > This task may take some time — that is expected and acceptable.
 > Do **not** skip files or produce partial results due to time or complexity. Accuracy and completeness are **mission-critical**.
@@ -7,7 +7,7 @@ You're analyzing a codebase with the goal of understanding its structure and maj
 > - Review every relevant file
 > - Extract actual patterns and conventions
 > - Produce complete, high-fidelity output
->   If a file is listed in ./{output-folder}/2.file-categorization.json or is part of a relevant domain, it **must** be included in your analysis.
+>   If a file is listed in ./{output-folder}/2-file-categorization.json or is part of a relevant domain, it **must** be included in your analysis.
 >   Do not optimize for speed or brevity. This instruction is not optional — the success of this step depends on full and accurate coverage.
 
 Your Task:
@@ -39,7 +39,7 @@ Examples:
 - auth: Authentication / access control logic
 
 Output:
-Write a JSON object to ./{output-folder}/3.architectural-domains.json like so:
+Write a JSON object to ./{output-folder}/3-architectural-domains.json like so:
 
 ```json
 {
@@ -60,6 +60,6 @@ Only include domains you find concrete evidence for based on the actual codebase
 
 This analysis will help ensure future additions follow the established architectural patterns rather than introducing inconsistent approaches.
 
-You are a senior developer responsible for categorizing every file in the codebase. You’ve been informed that the project is defined as: ./{output-folder}/1.techstack.md (read this file first)
+You are a senior developer responsible for categorizing every file in the codebase. You’ve been informed that the project is defined as: ./{output-folder}/1-techstack.md (read this file first)
 
-After writing ./{output-folder}/3.file-categorization.json, read the contents of [./4-domain-deep-dive.md](./4-domain-deep-dive.md) and proceed accordingly with {output-folder} as the `output-folder`.
+After writing ./{output-folder}/3-file-categorization.json, read the contents of [./4-domain-deep-dive.md](./4-domain-deep-dive.md) and proceed accordingly with {output-folder} as the `output-folder`.
