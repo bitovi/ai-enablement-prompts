@@ -21,7 +21,7 @@ Determine the type of project and summarize the tech stack. Your summary should 
 - What types of features would be architecturally inconsistent with the current design?
 - Are there any specialized libraries or mathematical concepts that suggest domain constraints?
 
-Add all your findings to ./{output-folder}/techstack.md
+Add all your findings to ./{output-folder}/1.techstack.md
 
 The domain analysis should help future prompts understand what types of new features would fit vs. conflict with the existing application architecture.
 
