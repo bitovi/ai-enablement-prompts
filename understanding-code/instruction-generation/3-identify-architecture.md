@@ -7,7 +7,7 @@ You're analyzing a codebase with the goal of understanding its structure and maj
 > - Review every relevant file
 > - Extract actual patterns and conventions
 > - Produce complete, high-fidelity output
->   If a file is listed in ./{output-folder}/categorization.json or is part of a relevant domain, it **must** be included in your analysis.
+>   If a file is listed in ./{output-folder}/2.file-categorization.json or is part of a relevant domain, it **must** be included in your analysis.
 >   Do not optimize for speed or brevity. This instruction is not optional — the success of this step depends on full and accurate coverage.
 
 Your Task:
