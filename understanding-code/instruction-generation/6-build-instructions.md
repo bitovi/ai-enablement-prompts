@@ -6,10 +6,10 @@ This file will serve as a reusable meta-instruction for any AI assistant to gene
 
 You must synthesize the following source materials:
 
-- `./{output-folder}/techstack.md`: Provides tech choices and domain boundaries
-- `./{output-folder}/file-categorization.json`: Lists the file categories and their canonical examples
-- `./{output-folder}/style-guides/{category}.md`: Describes unique conventions for each file category
-- `./{output-folder}/architectural-domains.json`: Defines how domains like `ui`, `routing`, `data-layer`, etc. are implemented, along with constraints and required patterns
+- `./{output-folder}/1.techstack.md`: Provides tech choices and domain boundaries
+- `./{output-folder}/2.file-categorization.json`: Lists the file categories and their canonical examples
+- `./{output-folder}/5.style-guides/{category}.md`: Describes unique conventions for each file category
+- `./{output-folder}/3.architectural-domains.json`: Defines how domains like `ui`, `routing`, `data-layer`, etc. are implemented, along with constraints and required patterns
 
 ---
 
@@ -30,11 +30,11 @@ Explain the purpose of this file:
 
 ### 2. **File Category Reference**
 
-For each category in `file-categorization.json`:
+For each category in `2.file-categorization.json`:
 
 - Explain what it is
 - List 1–2 representative file examples
-- Summarize key conventions based on its corresponding `style-guides/{category}.md`
+- Summarize key conventions based on its corresponding `5.style-guides/{category}.md`
 
 ---
 
@@ -53,7 +53,7 @@ This section should refer to actual conventions in the project (e.g., if Storybo
 
 ### 4. **Integration Rules**
 
-From `architectural-domains.json`, summarize constraints like:
+From `3.architectural-domains.json`, summarize constraints like:
 
 - "All canvas logic must use `useCanvas`"
 - "Components must use shared tokens from the design-system"
