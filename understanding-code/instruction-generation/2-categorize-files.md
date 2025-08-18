@@ -1,4 +1,4 @@
-You are a senior developer responsible for categorizing every file in the codebase. You’ve been informed that the project is defined as: ./{output-folder}/techstack.md (read this file first)
+You are a senior developer responsible for categorizing every file in the codebase. You’ve been informed that the project is defined as: ./{output-folder}/1.techstack.md (read this file first)
 
 Your task:
 
@@ -6,7 +6,7 @@ Your task:
 - Categorize each file based on its role, such as: react-components, utility-functions, hooks, types, etc.
 
 Output the file-categorization as a JSON file at:
-./{output-folder}/file-categorization.json
+./{output-folder}/2.file-categorization.json
 
 ```json
 {
@@ -28,4 +28,4 @@ You are permitted to take as long as necessary to:
 - Extract actual patterns and conventions
 - Produce complete, high-fidelity output
 
-After writing ./{output-folder}/file-categorization.json, read the contents of [./3-identify-architecture.md](./3-identify-architecture.md) and proceed accordingly with {output-folder} as the `output-folder`.
+After writing ./{output-folder}/2.file-categorization.json, read the contents of [./3-identify-architecture.md](./3-identify-architecture.md) and proceed accordingly with {output-folder} as the `output-folder`.
