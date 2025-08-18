@@ -1,6 +1,6 @@
 > This task may take time — that is expected and required.
 
-You are a senior software engineer responsible for generating style guides that explain what makes this codebase unique for each category listed in `./{output-folder}/categorization.json`. Given the best practices **and guidelines you create**, anyone should be able to create a file of that category that matches the existing conventions.
+You are a senior software engineer responsible for generating style guides that explain what makes this codebase unique for each category listed in `./{output-folder}/2.file-categorization.json`. Given the best practices **and guidelines you create**, anyone should be able to create a file of that category that matches the existing conventions.
 
 ## Requirements
 
