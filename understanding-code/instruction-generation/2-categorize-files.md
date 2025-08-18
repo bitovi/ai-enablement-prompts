@@ -1,4 +1,4 @@
-You are a senior developer responsible for categorizing every file in the codebase. You’ve been informed that the project is defined as: ./{output-folder}/1.techstack.md (read this file first)
+You are a senior developer responsible for categorizing every file in the codebase. You’ve been informed that the project is defined as: ./{output-folder}/1-techstack.md (read this file first)
 
 Your task:
 
@@ -6,7 +6,7 @@ Your task:
 - Categorize each file based on its role, such as: react-components, utility-functions, hooks, types, etc.
 
 Output the file-categorization as a JSON file at:
-./{output-folder}/2.file-categorization.json
+./{output-folder}/2-file-categorization.json
 
 ```json
 {
@@ -19,7 +19,7 @@ A single file can appear in multiple categories if appropriate.
 
 > This task may take some time — that is expected and acceptable.
 > Do **not** skip files or produce partial results due to time or complexity. Accuracy and completeness are **mission-critical**.
-> If a file is listed in ./{output-folder}/2.file-categorization.json or is part of a relevant domain, it **must** be included in your analysis.
+> If a file is listed in ./{output-folder}/2-file-categorization.json or is part of a relevant domain, it **must** be included in your analysis.
 > Do not optimize for speed or brevity. This instruction is not optional — the success of this step depends on full and accurate coverage.
 
 You are permitted to take as long as necessary to:
@@ -28,4 +28,4 @@ You are permitted to take as long as necessary to:
 - Extract actual patterns and conventions
 - Produce complete, high-fidelity output
 
-After writing ./{output-folder}/2.file-categorization.json, read the contents of [./3-identify-architecture.md](./3-identify-architecture.md) and proceed accordingly with {output-folder} as the `output-folder`.
+After writing ./{output-folder}/2-file-categorization.json, read the contents of [./3-identify-architecture.md](./3-identify-architecture.md) and proceed accordingly with {output-folder} as the `output-folder`.
