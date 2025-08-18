@@ -23,9 +23,9 @@ For example, if the categories are:
 
 Then you must create:
 
-- `./{output-folder}/style-guides/react-components.md`
-- `./{output-folder}/style-guides/api-clients.md`
-- `./{output-folder}/style-guides/hooks.md`
+- `./{output-folder}/5.style-guides/react-components.md`
+- `./{output-folder}/5.style-guides/api-clients.md`
+- `./{output-folder}/5.style-guides/hooks.md`
 
 ## Important Guidelines
 
