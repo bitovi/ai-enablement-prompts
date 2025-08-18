@@ -10,9 +10,9 @@
 >
 > Do not optimize for speed or brevity. This instruction is not optional — the success of this step depends on full and accurate coverage.
 
-For each of the domains listed in ./{output-folder}/architecture-domains.json, you're analyzing the codebase to understand how it implements the architectural domain: "{domain}".
+For each of the domains listed in ./{output-folder}/3.architecture-domains.json, you're analyzing the codebase to understand how it implements the architectural domain: "{domain}".
 
-The tech stack is summarized in ./temp/techstack.md.
+The tech stack is summarized in ./{output-folder}/1.techstack.md.
 
 Your Task:
 
@@ -21,7 +21,7 @@ Your Task:
 - Include real code examples that reflect actual usage in the codebase.
 - Focus on what the project is doing — not what it should do.
 
-Write your findings to: `./{output-folder}/domains/{domain}.md`
+Write your findings to: `./{output-folder}/4.domains/{domain}.md`
 
 Requirements:
 
