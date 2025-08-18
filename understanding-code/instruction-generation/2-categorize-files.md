@@ -19,7 +19,7 @@ A single file can appear in multiple categories if appropriate.
 
 > This task may take some time — that is expected and acceptable.
 > Do **not** skip files or produce partial results due to time or complexity. Accuracy and completeness are **mission-critical**.
-> If a file is listed in ./{output-folder}/file-categorization.json or is part of a relevant domain, it **must** be included in your analysis.
+> If a file is listed in ./{output-folder}/2.file-categorization.json or is part of a relevant domain, it **must** be included in your analysis.
 > Do not optimize for speed or brevity. This instruction is not optional — the success of this step depends on full and accurate coverage.
 
 You are permitted to take as long as necessary to:
