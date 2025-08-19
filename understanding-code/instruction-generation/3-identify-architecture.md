@@ -1,4 +1,4 @@
-You're analyzing a codebase with the goal of understanding its structure and major concerns. The tech stack is summarized in ./{output-folder}/1.techstack.md. Categorized files are listed in ./{output-folder}/2-file-categorization.json.
+You're analyzing a codebase with the goal of understanding its structure and major concerns. The tech stack is summarized in ./{output-folder}/1-techstack.md. Categorized files are listed in ./{output-folder}/2-file-categorization.json.
 
 > This task may take some time — that is expected and acceptable.
 > Do **not** skip files or produce partial results due to time or complexity. Accuracy and completeness are **mission-critical**.
