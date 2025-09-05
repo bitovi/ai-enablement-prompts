@@ -292,6 +292,7 @@ Only use categories and file types present in this project.
 - **Do not** include invented best practices
 - **Do not** list categories or conventions that aren’t supported by the codebase
 - **Do not** omit any categories or domains defined in the analysis
+- **Do** include links to generated style guides along side generated instructions when appropriate  to allow copilot to gain more context if needed. Ensure these links are properly relative to the instructions file so they can be followed.
 
 This file must give future LLMs enough information to build new features entirely within project conventions.
 
