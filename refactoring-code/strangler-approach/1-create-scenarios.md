@@ -2,15 +2,21 @@
 
 ## Step 1: Create Scenarios
 
-Analyze the #codebase. List the features that would be strong candidates for E2E tests. Take your time to review thoroughly.  
+Analyze the #codebase. List the features that would be strong candidates for E2E tests. Take your time to review thoroughly.
+
 For each major feature area, specify requirements.  
-Where each requirement will be written with GHERKIN like format.
-Please build out each requirement/scenario individually. Many files are ok.
+
+Each requirement will be written with GHERKIN like format.
+Please build out each requirement/scenario.md individually. Many files are ok.
+
 Example output format:  
 /rewrite/{area}/{requirement}/{scenario}/scenario.md
+
 Only one scenario should be in each scenario.md file. Break out related scenarios into separate folders.
+
 Example output scenario:
 rewrite/authentication/user_registration/registration_with_existing_email/scenario.md
+
 Example scenario.md content:
 Given an account already exists with my email
 When I try to register with the same email
