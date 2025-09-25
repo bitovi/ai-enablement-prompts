@@ -89,10 +89,11 @@ Replace stub content with this structure, filling each section thoroughly:
 
 ### 5. Execution Behavior
 
-- **Silent processing**: Only report screen completion status, not intermediate steps
-- **Minimal output**: Use concise progress indicators instead of detailed explanations  
+- **Completeness**: Complete ALL screens in the list before finishing
+- **Silent processing**: Only report screen completion status, not intermediate steps. 
+- **Minimal output**: Use concise progress indicators instead of detailed explanations. Provide no progress indicators when processing images, collecting notes, etc.
 - **Error-only details**: Provide verbose output only when issues occur
-- **Memory management**: State "Releasing image from memory" after each screen analysis
+- **Memory management**: Process each image within its own context. After each screen analysis, remove that image and analysis from your memory.
 
 ### 6. Summary Report
 
