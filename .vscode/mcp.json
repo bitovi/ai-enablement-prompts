@@ -1,26 +1,33 @@
 {
-  "servers": {
-    "image-processing": {
-      "command": "npx",
-      "args": [
-                    "-y",
-                    "image-processing-mcp-server"
-                ]
-    },
-    "figma": {
-      "type": "http",
-       "url": "http://127.0.0.1:3845/mcp"
-    },
-    "figma-downloads": {
-      "type": "http",
-       "url": "http://localhost:3005/mcp"
-    },
-    "image-extractor": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-image-extractor"
-      ]
-    }
-  }
+	"servers": {
+		"image-processing": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"image-processing-mcp-server"
+			],
+			"type": "stdio"
+		},
+		"figma": {
+			"type": "http",
+			"url": "http://127.0.0.1:3845/mcp"
+		},
+		"figma-downloads": {
+			"type": "http",
+			"url": "http://localhost:3005/mcp"
+		},
+		"image-extractor": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"mcp-image-extractor"
+			],
+			"type": "stdio"
+		},
+		"atlassian": {
+			"url": "https://mcp.atlassian.com/v1/sse",
+			"type": "http"
+		}
+	},
+	"inputs": []
 }

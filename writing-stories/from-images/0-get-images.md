@@ -32,10 +32,10 @@ Use the `create_directory` tool to create this folder. Note images are processed
 
 Filter the layers to find all items where `type === "FRAME"`. These represent the main screen designs.
 
-**IMPORTANT: Download in batches** - Use parallel downloads by calling multiple `mcp_figma-downloa_get-figma-image-download` functions simultaneously. This significantly improves performance compared to sequential downloads.
+**IMPORTANT: Download in batches** - Use parallel downloads by calling multiple `mcp_figma-download_get-figma-image-download` functions simultaneously. This significantly improves performance compared to sequential downloads.
 
 For each frame layer:
-1. Use `mcp_figma-downloa_get-figma-image-download` with these parameters:
+1. Use `mcp_figma-download_get-figma-image-download` with these parameters:
    - `url`: The original Figma file URL
    - `nodeId`: The layer's `id` (e.g., "253:138467")
    - `format`: "png"
@@ -49,7 +49,7 @@ For each frame layer:
    - Use curl: `curl -o "{screens}/application-agreement-fixed-sent.png" "{imageUrl}"`
 
 **Batch Strategy:** 
-1. Call up to 10 `mcp_figma-downloa_get-figma-image-download` functions in parallel to get response objects
+1. Call up to 10 `mcp_figma-download_get-figma-image-download` functions in parallel to get response objects
 2. Extract the `imageUrl` field from each response object 
 3. Save all images using parallel curl commands with the extracted imageUrls:
    ```bash
@@ -65,7 +65,7 @@ Filter the layers to find all items where `type === "INSTANCE"` and `name === "N
 
 For each note instance:
 
-1. **Get note content**: Use `mcp_figma-downloa_get-figma-image-download` to get the response object with the note's image data and extract the text content
+1. **Get note content**: Use `mcp_figma-download_get-figma-image-download` to get the response object with the note's image data and extract the text content
 
 2. **Calculate proximity**: Use the `absoluteBoundingBox` coordinates to determine which screen this note is closest to:
    - Note position: `note.absoluteBoundingBox.x` and `note.absoluteBoundingBox.y`
@@ -165,7 +165,7 @@ Expected output:
 ## Tools Used
 
 - `mcp_figma-downloa_get-layers-for-a-page`: Get all layers from Figma page
-- `mcp_figma-downloa_get-figma-image-download`: Download individual images
+- `mcp_figma-download_get-figma-image-download`: Download individual images
 - `create_directory`: Create folder structure
 - `create_file`: Create markdown note files
 - `replace_string_in_file`: Append to existing note files
