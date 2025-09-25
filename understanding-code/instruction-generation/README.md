@@ -4,12 +4,12 @@ This project provides an AI-powered prompt chain designed to generate a comprehe
 
 The resulting file is designed to help AI tools like GitHub Copilot operate more effectively within the project by providing them with clear architectural context, domain understanding, and stylistic guidelines.
 
-<a href="https://youtu.be/X48osWOuaGI">
+<a href="https://youtu.be/X48osWOuaGI" target="_blank">
     <img width="500" alt="thumbnail-teach-code" src="https://github.com/user-attachments/assets/f87f6a84-2e31-49f9-b6af-b72bdcf0e821" />
     
 </a>
 <br />
-<a href="https://youtu.be/X48osWOuaGI">https://youtu.be/X48osWOuaGI</a>
+<a href="https://youtu.be/X48osWOuaGI" target="_blank">https://youtu.be/X48osWOuaGI</a>
 
 ## Overview
 
