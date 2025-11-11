@@ -10,6 +10,9 @@ The resulting file is designed to help AI tools like GitHub Copilot operate more
 </a>
 <br />
 <a href="https://youtu.be/X48osWOuaGI" target="_blank">https://youtu.be/X48osWOuaGI</a>
+<br /><br />
+
+👉 Bitovi can help you integrate this into your own SDLC workflow: [AI for Software Teams](https://www.bitovi.com/ai-for-software-teams)
 
 ## Overview
 
