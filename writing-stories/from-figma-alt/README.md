@@ -2,6 +2,9 @@
 
 This collection of prompts automates the process of converting Figma design files into detailed user stories and acceptance criteria for development teams.
 
+👉 Bitovi can help you integrate this into your own SDLC workflow: [AI for Software Teams](https://www.bitovi.com/ai-for-software-teams)
+
+
 ## What These Prompts Do
 
 The prompts work together as a 4-step pipeline to transform Figma designs into development-ready user stories:
