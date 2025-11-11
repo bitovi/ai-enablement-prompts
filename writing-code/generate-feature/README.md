@@ -8,6 +8,9 @@ This project provides an AI prompt chain designed to automate the implementation
 
 https://www.youtube.com/watch?v=xcoBQaEmuWY
 
+👉 Bitovi can help you integrate this into your own SDLC workflow: [AI for Software Teams](https://www.bitovi.com/ai-for-software-teams)
+
+
 ## Overview
 
 This prompt chain guides an AI agent through a series of structured steps that include:
