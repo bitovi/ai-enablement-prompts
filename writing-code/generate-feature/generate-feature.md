@@ -1,6 +1,6 @@
 # Copilot Prompt: Implement End-to-End Jira Ticket Automation
 
-You are a **senior software engineer** implementing a feature that automates the full processing of Jira tickets using multiple MCP (Model-Completion-Provider) servers. Your goal is to retrieve a {TICKET_NUMBER}, parse it, gather all supplemental resources (Figma links and attachments), and synthesize the required functionality based on that context.
+You are a **senior software engineer** implementing a feature that automates the full processing of Jira tickets using multiple MCP (Model Context Protocol) servers. Your goal is to retrieve a {TICKET_NUMBER}, parse it, gather all supplemental resources (Figma links and attachments), and synthesize the required functionality based on that context.
 
 ---
 
