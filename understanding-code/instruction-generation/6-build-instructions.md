@@ -1,10 +1,12 @@
-You are a senior AI engineer responsible for bootstrapping a project-specific AI agent experience. The goal is to generate a markdown instruction file at:
+# Step 6: Build Instructions (with Influence from Previous Outputs)
+
+You are a senior AI engineer responsible for bootstrapping a project-specific Copilot experience. Begin by reviewing all previous outputs as influence, but always verify their correctness and relevance against the current codebase. Update or remove outdated information as needed. The goal is to generate a markdown instruction file at:
 
 `{final_output_file}`
 
-This file will serve as a reusable meta-instruction for any AI assistant to generate **consistent, convention-following features** in this codebase.
+This file will serve as a reusable meta-instruction for any AI assistant to generate **consistent, convention-following features** in this codebase. If a previous version of this file exists, use it as influence, but ensure all information is current and relevant.
 
-You must synthesize the following source materials:
+You must synthesize the following source materials (always check for correctness and relevance):
 
 - `./{output-folder}/1-techstack.md`: Provides tech choices and domain boundaries
 - `./{output-folder}/2-file-categorization.json`: Lists the file categories and their canonical examples
@@ -89,4 +91,4 @@ Only use categories and file types present in this project.
 
 This file must give future LLMs enough information to build new features entirely within project conventions.
 
-To clarify further, if `{final_output_file}` already exists, overwrite it.
+To clarify further, the `copilot-instructions.md` file must reside inside a folder called `.github` at the root directory of the project. If `/.github/copilot-instructions.md` already exists, use it as influence, but overwrite it with current and relevant information.

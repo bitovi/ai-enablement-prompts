@@ -1,8 +1,10 @@
 # Instruction Generation Prompt Chain
 
-This project provides an AI-powered prompt chain designed to generate a comprehensive instructions file `{final_output_file}.md` (ex. `copilot-instruction.md`) by analyzing the structure, patterns, and intent of a codebase.
+# Instruction Generation Prompt Chain (with Influence from Previous Outputs)
 
-The resulting file is designed to help AI tools like GitHub Copilot operate more effectively within the project by providing them with clear architectural context, domain understanding, and stylistic guidelines.
+This project provides an AI-powered prompt chain designed to generate a comprehensive `copilot-instruction.md` file by analyzing the structure, patterns, and intent of a codebase. When using previous outputs as influence, always check for correctness and relevance, and update or remove outdated information as needed.
+
+The resulting file is designed to help AI tools like GitHub Copilot operate more effectively within the project by providing them with clear architectural context, domain understanding, and stylistic guidelines. Always prioritize accuracy and clarity over simply copying previous outputs.
 
 <a href="https://youtu.be/X48osWOuaGI" target="_blank">
     <img width="500" alt="thumbnail-teach-code" src="https://github.com/user-attachments/assets/f87f6a84-2e31-49f9-b6af-b72bdcf0e821" />
@@ -16,7 +18,7 @@ The resulting file is designed to help AI tools like GitHub Copilot operate more
 
 ## Overview
 
-This prompt chain guides an AI agent through a series of structured steps to extract meaningful insights from a codebase. It is capable of:
+This prompt chain guides an AI agent through a series of structured steps to extract meaningful insights from a codebase. At each step, use previous outputs as influence, but always verify their correctness and relevance against the current codebase. It is capable of:
 
 - Identifying the technology stack and major frameworks used
 - Mapping out file purposes and categorizing project structure
@@ -38,7 +40,7 @@ You are assisting with generating a {final_output_file} file using a multi-step 
 
 1. Open this repository on GitHub: https://github.com/bitovi/ai-enablement-prompts.
 2. Navigate to the `/understanding-code/instruction-generation` folder within the repo.
-3. Review all the prompt files in this folder WITHOUT executing them. 
+3. Review all the prompt files in this folder WITHOUT executing them.
     - This will help you understand the full scope of the prompt chain.
 4. Confirm you have a full understanding of the prompt chain sequence.
 5. Once you're familiar with the flow, begin executing the prompts in numerical order:
@@ -74,10 +76,12 @@ This prompt chain is expected to be provided the following:
 - {final_output_file} - A file which combines all the work that's been done into a single place eg., `/.github/copilot-instructions.md`)
 
 ### Copilot
+
 - {output_folder} - `.results/`
 - {final_output_file} - `/.github/copilot-instructions.md`
 
 ## Windsurf
+
 - {output_folder} - `.windsurf/`
 - {final_output_file} - `/.windsurf/instructions.md`
 
@@ -88,16 +92,16 @@ For Windsurf, you want to move `instructions.md` into the `.windsurf/rules/` dir
 When given an {output_folder}, the AI agent will perform the following steps, reading each file and following it's instructions in order:
 
 - [./1-determine-techstack.md](./1-determine-techstack.md)
-    - Analyzes the codebase to identify the technology stack, frameworks, and libraries being used
+  - Analyzes the codebase to identify the technology stack, frameworks, and libraries being used
 - [./2-categorize-files.md](./2-categorize-files.md)
-    - Categorizes and organizes files by their purpose and functionality
+  - Categorizes and organizes files by their purpose and functionality
 - [./3-identify-architecture.md](./3-identify-architecture.md)
-    - Examines the project structure and identifies architectural patterns and design decisions
-- [./4-domain-deep-dive.md](./4-domain-deep-dive.md) 
-    - Analyzes the business domain and understands the application's core functionality
+  - Examines the project structure and identifies architectural patterns and design decisions
+- [./4-domain-deep-dive.md](./4-domain-deep-dive.md)
+  - Analyzes the business domain and understands the application's core functionality
 - [./5-styleguide-generation.md](./5-styleguide-generation.md)
-    - Generates style guidelines and coding standards based on existing code patterns
+  - Generates style guidelines and coding standards based on existing code patterns
 - [./6-build-instructions.md](./6-build-instructions.md)
-    - Identifies key features and capabilities of the application and creates the application's instruction file
+  - Identifies key features and capabilities of the application and creates the application's instruction file
 
-Each prompt should be provided with the {output_folder} parameter to ensure consistent output location.
+Each prompt should be provided with the {OUTPUT_FOLDER} parameter to ensure consistent output location. If a previous version of any output exists, use it as influence, but ensure all information is current and relevant.
