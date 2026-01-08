@@ -2,4 +2,4 @@ Please review this spec. Does it make sense? Does it contradict itself?  Is it o
 
 Please check against the existing codebase.
 
-Add additional questions in the `## Questions` section if you my help to make decisions.
+Add additional questions in the `## Questions` section if you need help making decisions.
