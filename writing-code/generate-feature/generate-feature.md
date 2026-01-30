@@ -2,6 +2,8 @@
 
 You are a **senior software engineer** implementing a feature that automates the full processing of Jira tickets using multiple MCP (Model Context Protocol) servers. Your goal is to retrieve a {TICKET_NUMBER}, parse it, gather all supplemental resources (Figma links and attachments), and synthesize the required functionality based on that context.
 
+IMPORTANT: You must use skills in the .github/skills/<skill-name>/** when appropriate
+
 ---
 
 ## Step 1: Retrieve the {TICKET_NUMBER}
