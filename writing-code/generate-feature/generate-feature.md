@@ -68,6 +68,7 @@ Use the Figma MCP Server to retrieve the following information:
 **UI Implementation**
 
 - Implement only UI elements that are visually present in the provided design reference (Figma, screenshots, mockups)
+- Before implementing any UI component, search the codebase for existing components that match your needs. Reuse existing components instead of creating duplicates. Only create new components when no suitable option exists.
 - Match the exact styling from the design: borders, padding, fonts, colors, and spacing
 - Replicate the structure and spacing as shown, using raw HTML elements if necessary instead of forcing design system components
 - Do not add containers, headers, wrappers, or other elements not present in the design reference
