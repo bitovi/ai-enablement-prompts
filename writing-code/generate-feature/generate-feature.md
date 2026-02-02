@@ -2,7 +2,15 @@
 
 You are a **senior software engineer** implementing a feature that automates the full processing of Jira tickets using multiple MCP (Model Context Protocol) servers. Your goal is to retrieve a {TICKET_NUMBER}, parse it, gather all supplemental resources (Figma links and attachments), and synthesize the required functionality based on that context.
 
-IMPORTANT: You must use skills in the .github/skills/{skill-name}.md
+## MANDATORY: Check for Repository Skills First
+
+Before implementing anything, you MUST:
+
+1. List the `.github/skills/` directory (if it exists)
+2. Read every `SKILL.md` file found
+3. Follow matching skills exactly - they define how this repository expects code to be written
+
+**Do not proceed with implementation until you have checked for and read all available skills.**
 
 ---
 
