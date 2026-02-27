@@ -23,11 +23,13 @@ You are generating a cross-repository systems map document.
    - If repository access is not possible, mark the behavior as **Unknown**.
 
 ## Output requirements
-- Produce exactly one Markdown document at `output/SYSTEMS_MAP.md`.
-- At the top of the document, include a "repositories in scope" section listing all repositories you investigated and their relevance.
-- If something cannot be verified, mark it as **Unknown**.
-- Do not invent integrations, endpoints, ports, or auth behavior.
-- Include repository names, file paths, and line numbers when appropriate.
+- Produce exactly one Markdown document at output/SYSTEMS_MAP.md.
+   - Must include:
+     - service inventory (name, purpose, tech, port)
+     - how services interact (explicit call graph)
+     - auth model summary (who validates tokens, where middleware is used)
+     - evidence references (file paths + line numbers + concise snippets if applicable) for all claims
+     - known issues/spec drift/unknowns
 - Share the repository list you investigated, then ask the user if there are any additional repositories that should be considered in scope and refine your map if needed.
 
 Output only Markdown.
