@@ -22,6 +22,14 @@ Given an account already exists with my email
 When I try to register with the same email
 Then I see an error message indicating the email is already in use
 
+### Step 1a: Create executable scenarios as e2e tests
+
+Install `playwright` and configure the playwright MCP server in this project.
+
+For the scenario.md files under /rewrite/, convert each scenario.md into a playwright test in a sibling scenario.spec.ts file.  This is an end-to-end (e2e) test, so fixtures should not be used.  Only playwright automation of the live site should be included here.  If a fixture would be desirable because the live site is missing important data (such as, but not limited to, user logins) that cannot be created from within the UI, then create a setup script for e2e testing that sets up this data directly in the database before running the playwright tests.
+
+Make sure that form field interaction looks at unique properties of the intended fields rather than assuming that e.g. an email field has `[name=email]`.  Check for the element's roles, names, IDs, data attributes, and unique class names, in that order, to find a unique combination of selectors to identify the field.
+
 ## Step 2: Analyze Functions and Components
 
 You are a software developer adding logging to a project, so other developers can see what functions are called, with what arguments, how often, and by which functions.
