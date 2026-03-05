@@ -25,19 +25,55 @@ This skill analyzes Figma designs and proposes React component architecture and 
 
 1. **Figma URL**: Full URL like `https://figma.com/design/{fileKey}/{fileName}?node-id={nodeId}`
 
+## Design Principle
+
+**Follow FIGMA structure exactly**
+
+When designing component APIs from Figma:
+
+- **DO NOT** use any other component library as a reference
+- **DO NOT** impose external component patterns or best practices
+- **DO** use the Figma design as the single source of truth for component structure
+- **DO** match the exact component hierarchy, variant structure, and prop organization shown in Figma
+
+The component API should mirror how the design is structured in Figma, not how a component library would implement it. If Figma shows variants that change DOM structure, layout, or element ordering, the component API should reflect those structural changes through props.
+
+**Example:**
+- If Figma shows a Type="Mobile" variant with vertical button layout and Type="Desktop" with horizontal layout
+- Then the component should have a `type` prop that controls both layout structure and alignment
+- NOT separate props like `buttonLayout="vertical"` and `textAlign="center"` which would deviate from the Figma structure
+
 ## Workflow Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │ 1. FETCH - Get Figma design context using MCP                  │
 ├─────────────────────────────────────────────────────────────────┤
-│ 2. SAVE - Store design context in .temp/design-components/     │
+│ 2. VALIDATE - Screenshot verification                           │
 ├─────────────────────────────────────────────────────────────────┤
-│ 3. ANALYZE - Review variants, properties, and nested components│
+│ 3. SAVE - Store design context in .temp/design-components/     │
 ├─────────────────────────────────────────────────────────────────┤
-│ 4. PROPOSE - Suggest component API(s) with props and types     │
+│ 4. ANALYZE - Review variants, properties, and nested components│
+├─────────────────────────────────────────────────────────────────┤
+│ 5. PROPOSE - Suggest component API(s) with props and types     │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+## Required Flow
+
+**Follow this sequence exactly:**
+
+1. **Run `get_design_context` first** to fetch the structured representation for the exact node(s).
+
+2. **If the response is too large or truncated**, run `get_metadata` to get the high-level node map and then re-fetch only the required node(s) with `get_design_context`.
+
+3. **Run `get_screenshot`** for a visual reference of the node variant being implemented.
+
+4. **Only after you have both `get_design_context` and `get_screenshot`**, download any assets needed and start implementation.
+
+5. **Translate the output** into this project's conventions, styles and framework. Reuse the project's color tokens, components, and typography wherever possible.
+
+6. **Validate against Figma** for 1:1 look and behavior before marking complete.
 
 ## Step-by-Step Instructions
 
@@ -82,6 +118,11 @@ Extract and analyze:
 1. **Variants and Variant Options**
    - List all variant properties (e.g., Size, State, Type)
    - List all options for each variant (e.g., Size: Small, Medium, Large)
+   - Note how variants affect component structure, not just styling
+     - Does the variant change element ordering?
+     - Does it change flex direction or layout?
+     - Does it add/remove elements?
+     - Does it change text alignment or button positioning?
 
 2. **Component Properties**
    - Boolean properties (e.g., "Has Icon", "Show Label")
@@ -94,6 +135,87 @@ Extract and analyze:
 
 4. **Text Layers**
    - Configurable text content
+   - Alignment changes across variants
+
+5. **Structural Differences**
+   - Document how the DOM structure changes between variants
+
+6. **Child Component Configurability Assessment**
+   
+   When the parent component contains nested child component instances (e.g., a Dialog containing Buttons), critically evaluate whether those child components should be configurable by the user.
+   
+   **Common Design Pattern Gap:**
+   Designers may focus on the parent component's variants without considering that child component instances might need different configurations based on the use case. For example:
+   - An `AlertDialog` might always show the same "Cancel" and "Delete" buttons in Figma
+   - But in actual usage, different dialogs need different button variants (destructive vs. primary), labels, and actions
+   
+   **When to Recommend Configurable Child Props:**
+   
+   Consider making child components configurable if:
+   - The child has multiple variants in its own component set (e.g., Button has primary/destructive/outline variants)
+   - Different use cases would require different child configurations
+   - The child component's content or behavior naturally varies (button labels, icons, actions)
+   - The design shows only one variant but others exist and are relevant
+   
+   **How to Handle in API Design:**
+   
+   Instead of hardcoding child components, provide render prop or component prop patterns:
+   
+   ```typescript
+   interface AlertDialogProps {
+     title: string;
+     description: string;
+     
+     // Allow users to pass configured child instances
+     actionButton?: React.ReactNode;
+     cancelButton?: React.ReactNode;
+     
+     // OR use render props for full control
+     renderActions?: (props: { onClose: () => void }) => React.ReactNode;
+   }
+   ```
+   
+   **Example Usage:**
+   ```tsx
+   <AlertDialog
+     title="Delete item?"
+     description="This action cannot be undone."
+     actionButton={
+       <Button variant="destructive" size="default">
+         Delete
+       </Button>
+     }
+     cancelButton={
+       <Button variant="outline" size="default">
+         Cancel
+       </Button>
+     }
+   />
+   ```
+   
+   **Document in Proposed API:**
+   
+   When recommending configurable child components, explain:
+   - Why the child should be configurable (use case flexibility)
+   - What the Figma design shows vs. what's needed in practice
+   - Whether to use component props, render props, or both
+   - Default behavior if props are not provided
+   
+   **Example Documentation:**
+   ```markdown
+   ### Design Consideration: Configurable Buttons
+   
+   **Figma shows:** Fixed "Cancel" and "Delete" buttons with specific variants
+   
+   **Recommended approach:** Make buttons configurable via props
+   
+   **Rationale:** Different alert dialogs need different button configurations:
+   - Destructive actions (delete, remove) need `variant="destructive"`
+   - Confirmations need `variant="primary"`
+   - Button labels vary by context ("Delete", "Remove", "Confirm", etc.)
+   
+   The Figma design represents one use case, but the component should support flexible button configurations to handle all dialog scenarios.
+   ```
 
 ### Step 4: Propose Component API
 
@@ -191,7 +313,7 @@ Keep as one component when:
 ### Props to Include vs Exclude
 
 **Include as props:**
-- Variants that change content or behavior
+- Variants that change content, behavior, OR structure
 - Boolean toggles for optional elements
 - Text content that should be configurable
 - Instance swaps for customizable slots
@@ -259,7 +381,7 @@ See full details: `.temp/design-components/button/proposed-api.md`
 
 ## Related Skills
 
-- **implement-component**: Use this skill next to build the component from the analysis
+- **figma-implement-component**: Use this skill next to build the component from the analysis
 - **create-react-modlet**: Defines the modlet folder structure for components
 - **figma-connect-component**: Detailed Code Connect mapping guidance
 - **figma-component-sync**: Use to check existing implementations against Figma designs
