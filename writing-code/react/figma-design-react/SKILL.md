@@ -1,0 +1,265 @@
+---
+name: figma-design-react
+description: Design React components from Figma files. Use when given a Figma URL to analyze a design and propose React component architecture, props API, and variant handling. Outputs design analysis and suggested API - does not build components.
+---
+
+# Skill: Design React Components from Figma
+
+This skill analyzes Figma designs and proposes React component architecture and props APIs. It helps bridge the gap between design and implementation by providing clear specifications before coding begins.
+
+## When to Use
+
+- User provides a Figma URL and wants to understand how to implement it as React
+- Planning component architecture before implementation
+- Determining what props a component should have based on Figma variants
+- Deciding if a Figma component should be one or multiple React components
+
+## What This Skill Does NOT Do
+
+- Build or implement the actual React components
+- Generate production code
+- Create Code Connect mappings (use `figma-connect-component` for that)
+- Sync existing components with Figma (use `figma-component-sync` for that)
+
+## Required Inputs
+
+1. **Figma URL**: Full URL like `https://figma.com/design/{fileKey}/{fileName}?node-id={nodeId}`
+
+## Workflow Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. FETCH - Get Figma design context using MCP                  │
+├─────────────────────────────────────────────────────────────────┤
+│ 2. SAVE - Store design context in .temp/design-components/     │
+├─────────────────────────────────────────────────────────────────┤
+│ 3. ANALYZE - Review variants, properties, and nested components│
+├─────────────────────────────────────────────────────────────────┤
+│ 4. PROPOSE - Suggest component API(s) with props and types     │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Step-by-Step Instructions
+
+### Step 1: Parse Figma URL and Fetch Design Context
+
+Extract from the URL:
+- `fileKey`: The ID after `/design/` (or after `/branch/` if on a branch)
+- `nodeId`: From `node-id=` query param (convert `123-456` → `123:456`)
+
+Call `mcp_figma_get_design_context` with:
+- `nodeId`: The extracted node ID
+- `fileKey`: The extracted file key
+
+### Step 2: Create Output Directory and Save Design Context
+
+Create the output directory:
+```
+.temp/design-components/{COMPONENT_NAME}/
+```
+
+Where `{COMPONENT_NAME}` is derived from the Figma component name (kebab-case).
+
+Save the design context to `.temp/design-components/{COMPONENT_NAME}/design-context.md`:
+
+```markdown
+# Design Context: {ComponentName}
+
+## Figma Source
+{original URL}
+
+## Component Overview
+{Brief description based on Figma data}
+
+## Raw Design Data
+{Full output from mcp_figma_get_design_context}
+```
+
+### Step 3: Analyze Figma Design
+
+Extract and analyze:
+
+1. **Variants and Variant Options**
+   - List all variant properties (e.g., Size, State, Type)
+   - List all options for each variant (e.g., Size: Small, Medium, Large)
+
+2. **Component Properties**
+   - Boolean properties (e.g., "Has Icon", "Show Label")
+   - String properties (e.g., "Label Text")
+   - Instance swap properties (e.g., "Icon")
+
+3. **Nested Components**
+   - Child component instances
+   - Repeated elements
+
+4. **Text Layers**
+   - Configurable text content
+
+### Step 4: Propose Component API
+
+Based on the analysis, create `.temp/design-components/{COMPONENT_NAME}/proposed-api.md`:
+
+```markdown
+# Proposed API: {ComponentName}
+
+## Figma Source
+{original URL}
+
+## Summary
+{One paragraph describing what this component does}
+
+## Recommended Component Structure
+
+{Explain if this should be one component or multiple, and why}
+
+---
+
+## Component: {ComponentName}
+
+### Props Interface
+
+\`\`\`typescript
+interface {ComponentName}Props {
+  // Mapped from Figma variant "Size"
+  size?: 'sm' | 'md' | 'lg';
+  
+  // Mapped from Figma variant "Variant"
+  variant?: 'primary' | 'secondary' | 'outline';
+  
+  // Mapped from Figma boolean "Disabled"
+  disabled?: boolean;
+  
+  // Mapped from Figma text layer "Label"
+  children: React.ReactNode;
+  
+  // Mapped from Figma instance "Icon"
+  icon?: React.ReactNode;
+}
+\`\`\`
+
+### Prop Details
+
+| Prop | Type | Default | Figma Source | Notes |
+|------|------|---------|--------------|-------|
+| size | `'sm' \| 'md' \| 'lg'` | `'md'` | Variant: Size | Maps Small→sm, Medium→md, Large→lg |
+| variant | `'primary' \| 'secondary'` | `'primary'` | Variant: Type | - |
+| disabled | `boolean` | `false` | Boolean: Disabled | - |
+| children | `React.ReactNode` | required | Text: Label | - |
+| icon | `React.ReactNode` | `undefined` | Instance: Icon | Only shown when Has Icon=true |
+
+### Excluded from Props (Handled by Tailwind/Internal State)
+
+| Figma Property | Reason |
+|----------------|--------|
+| State: Hover | Tailwind `hover:` modifier |
+| State: Pressed | Tailwind `active:` modifier |
+| State: Focused | Tailwind `focus-visible:` modifier |
+
+### Example Usage
+
+\`\`\`tsx
+<{ComponentName} size="lg" variant="primary">
+  Click me
+</{ComponentName}>
+
+<{ComponentName} size="sm" icon={<IconPlus />}>
+  Add Item
+</{ComponentName}>
+\`\`\`
+
+---
+
+## Additional Components (if applicable)
+
+{If the Figma component should be split into multiple React components, document each one here with the same structure}
+```
+
+## Decision Guidelines
+
+### When to Create Multiple Components
+
+Create separate components when:
+- Figma variants represent fundamentally different UI patterns (e.g., "Type: Text Input" vs "Type: Date Picker")
+- Variants have completely different props/behavior
+- One variant is a specialized version with unique functionality
+
+Keep as one component when:
+- Variants only affect styling (colors, sizes)
+- All variants share the same props interface
+- Behavior is consistent across variants
+
+### Props to Include vs Exclude
+
+**Include as props:**
+- Variants that change content or behavior
+- Boolean toggles for optional elements
+- Text content that should be configurable
+- Instance swaps for customizable slots
+
+**Exclude from props (handle internally):**
+- Pseudo-state variants: `hover`, `pressed`, `focused`, `active`
+- Interaction states: `loading` might be a prop, but visual feedback is internal
+- Animation states
+
+### Naming Conventions
+
+| Figma | React Prop |
+|-------|-----------|
+| `Small`, `Medium`, `Large` | `'sm'`, `'md'`, `'lg'` |
+| `Primary`, `Secondary` | `'primary'`, `'secondary'` |
+| `Has Icon`, `Show Label` | `hasIcon: boolean`, `showLabel: boolean` |
+| `Yes`/`No`, `True`/`False` | `boolean` |
+| Title Case values | kebab-case or camelCase |
+
+## Output Files
+
+```
+.temp/design-components/{component-name}/
+├── design-context.md    # Raw Figma data + URL
+└── proposed-api.md      # Suggested component API(s)
+```
+
+## Example Session
+
+**User:** Design a React component from this Figma: https://figma.com/design/abc123/DesignSystem?node-id=100-200
+
+**Agent:**
+1. Fetches design context via MCP
+2. Creates `.temp/design-components/button/`
+3. Saves `design-context.md` with Figma data
+4. Analyzes variants (Size, Type, State) and properties (Has Icon, Label)
+5. Creates `proposed-api.md` with:
+   - `ButtonProps` interface
+   - Mapping table from Figma to props
+   - Note that State: Hover/Pressed/Focused are handled by CSS
+   - Example usage
+
+**Agent Response:**
+```
+📋 Design analysis complete for Button!
+
+Created: `.temp/design-components/button/`
+
+## Proposed Structure
+Single component: `Button`
+
+## Props Summary
+| Prop | Type | From Figma |
+|------|------|------------|
+| size | 'sm' \| 'md' \| 'lg' | Variant: Size |
+| variant | 'primary' \| 'secondary' | Variant: Type |
+| disabled | boolean | Boolean: Disabled |
+| children | ReactNode | Text: Label |
+| icon | ReactNode | Instance: Icon |
+
+Excluded: Hover, Pressed, Focused states (CSS handles these)
+
+See full details: `.temp/design-components/button/proposed-api.md`
+```
+
+## Related Skills
+
+- **implement-component**: Use this skill next to build the component from the analysis
+- **create-react-modlet**: Defines the modlet folder structure for components
+- **figma-connect-component**: Detailed Code Connect mapping guidance
+- **figma-component-sync**: Use to check existing implementations against Figma designs
