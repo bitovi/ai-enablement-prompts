@@ -55,6 +55,29 @@ Takes a Jira ticket number and walks the AI through implementing the described f
 
 → [View prompt chain](./writing-code/generate-feature/README.md)
 
+### 3. Solutions Architect Prompts
+
+**Paths:**
+
+- `solutions-architect-rag`
+- `solutions-architect-non-rag`
+
+Prompt chains for solution planning and architecture design. These prompts guide an AI agent through mapping a system and producing an implementation plan, with versions for workflows that use retrieval-augmented context (RAG) and workflows that do not.
+
+If you are using the **RAG-based methodology**, the `bitovi/enterprise-ai-infra` repository is required.
+
+**Features:**
+
+- Maps current system structure and dependencies
+- Produces step-by-step solution plans for proposed work
+- Supports both RAG-enabled and non-RAG planning workflows
+
+→ [View RAG prompts](./solutions-architect-rag/)
+
+→ [Required for RAG: bitovi/enterprise-ai-infra](https://github.com/bitovi/enterprise-ai-infra)
+
+→ [View non-RAG prompts](./solutions-architect-non-rag/)
+
 ## How to Use
 
 ### Requirements
