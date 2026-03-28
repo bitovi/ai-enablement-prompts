@@ -8,7 +8,7 @@ You must synthesize the following source materials:
 
 - `./{output-folder}/1-techstack.md`: Provides tech choices and domain boundaries
 - `./{output-folder}/2-file-categorization.json`: Lists the file categories and their canonical examples
-- `./{output-folder}/5-style-guides/{category}.md`: Describes unique conventions for each file category
+- `./{output-folder}/5-style-guide.md`: Describes unique conventions per file category and cross-cutting patterns
 - `./{output-folder}/3-architectural-domains.json`: Defines how domains like `ui`, `routing`, `data-layer`, etc. are implemented, along with constraints and required patterns
 
 ---
@@ -34,7 +34,7 @@ For each category in `2-file-categorization.json`:
 
 - Explain what it is
 - List 1–2 representative file examples
-- Summarize key conventions based on its corresponding `5-style-guides/{category}.md`
+- Summarize key conventions based on its corresponding section in `5-style-guide.md`
 
 ---
 
@@ -90,3 +90,47 @@ Only use categories and file types present in this project.
 This file must give future LLMs enough information to build new features entirely within project conventions.
 
 To clarify further, if `{final_output_file}` already exists, overwrite it.
+
+---
+
+## Second Output: `OVERVIEW.md` (root of the repository)
+
+After writing `{final_output_file}`, produce a second file at the **root of the repository**: `OVERVIEW.md`.
+
+This is a human-readable overview of the codebase, written for engineers, product managers, and stakeholders. It synthesises findings from the three analytical perspectives applied across this prompt chain.
+
+### Structure
+
+```markdown
+# Project Overview
+
+## Table of Contents
+...
+
+## System Architecture
+<!-- Software Architect perspective: system design, component boundaries, data flows, scalability -->
+<!-- Embed the Mermaid diagram from `./{output-folder}/3-architecture-diagram.md` here -->
+
+## Codebase Structure
+<!-- Software Developer perspective: implementation patterns, conventions, complexity, technical debt -->
+
+## Product & Features
+<!-- Product Manager perspective: user-facing features, user flows, alignment with business goals -->
+<!-- Include a Mermaid sequence or flowchart for a key user journey if it aids understanding -->
+
+## Actionable Insights & Open Questions
+<!-- Findings and unresolved questions surfaced across all three perspectives -->
+<!-- Frame each item as either an insight (something notable) or a question (something unresolved) -->
+```
+
+### Requirements
+
+- Written in Markdown
+- Include at least one Mermaid diagram (use the architecture diagram from step 3; add a user flow diagram if it adds value)
+- Base all content on the analysis from steps 1–5 — do not invent features or assumptions
+- Where something is ambiguous, surface it as an open question rather than guessing
+- If `OVERVIEW.md` already exists at the root, overwrite it
+
+---
+
+After writing both output files, read the contents of [./7-validate.md](./7-validate.md) and proceed accordingly with {output-folder} and {final_output_file} as parameters.

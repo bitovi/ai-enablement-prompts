@@ -1,8 +1,11 @@
 # Instruction Generation Prompt Chain
 
-This project provides an AI-powered prompt chain designed to generate a comprehensive instructions file `{final_output_file}.md` (ex. `copilot-instruction.md`) by analyzing the structure, patterns, and intent of a codebase.
+This project provides an AI-powered prompt chain designed to generate two complementary output files by analyzing the structure, patterns, and intent of a codebase:
 
-The resulting file is designed to help AI tools like GitHub Copilot operate more effectively within the project by providing them with clear architectural context, domain understanding, and stylistic guidelines.
+- **`{final_output_file}`** (e.g. `copilot-instructions.md`) — a machine-readable instruction file that helps AI tools like GitHub Copilot generate consistent, convention-following code
+- **`OVERVIEW.md`** — a human-readable overview of the codebase covering system architecture, code structure, product features, and actionable insights
+
+The chain guides an AI agent through the codebase from three perspectives: **Software Architect**, **Software Developer**, and **Product Manager** — ensuring the analysis captures design decisions, implementation patterns, and product intent.
 
 <a href="https://youtu.be/X48osWOuaGI" target="_blank">
     <img width="500" alt="thumbnail-teach-code" src="https://github.com/user-attachments/assets/f87f6a84-2e31-49f9-b6af-b72bdcf0e821" />
@@ -20,11 +23,11 @@ This prompt chain guides an AI agent through a series of structured steps to ext
 
 - Identifying the technology stack and major frameworks used
 - Mapping out file purposes and categorizing project structure
-- Inferring architecture and design patterns
-- Understanding domain concepts and key features
+- Inferring architecture and design patterns (with Mermaid diagrams)
+- Understanding domain concepts, key features, and user flows
 - Generating stylistic and structural guidance for future code contributions
 
-The final output, `{final_output_file}.md` (the name of this file is a parameter that must be passed into the AI Agent), serves as a high-level onboarding and guidance document that aligns AI-generated code with your project's existing conventions and design.
+The final outputs serve as both an onboarding document for human collaborators (`OVERVIEW.md`) and a high-level guidance file that aligns AI-generated code with the project's existing conventions (`{final_output_file}`).
 
 ## Usage
 
@@ -48,12 +51,14 @@ You are assisting with generating a {final_output_file} file using a multi-step 
     - 4-domain-deep-dive.md
     - 5-styleguide-generation.md
     - 6-build-instructions.md
+    - 7-validate.md
 6. For each step, output results into a corresponding `{output_folder}/` folder.
     - Mirror the step’s filename e.g., `1-determine-techstack.md` > `{output_folder}/1-determine-techstack.md`.
 
 Stop ONLY when:
     - All `instruction-generation` steps are complete
-    - A full `{final_output_file}` can be generated.
+    - A full `{final_output_file}` has been generated
+    - An `OVERVIEW.md` has been generated at the root of the repository
 ```
 
 ## Agent Capabilities
@@ -77,12 +82,6 @@ This prompt chain is expected to be provided the following:
 - {output_folder} - `.results/`
 - {final_output_file} - `/.github/copilot-instructions.md`
 
-## Windsurf
-- {output_folder} - `.windsurf/`
-- {final_output_file} - `/.windsurf/instructions.md`
-
-For Windsurf, you want to move `instructions.md` into the `.windsurf/rules/` directory manually, this is the directory for context files. Cascade is for some reason unable to generate files in there, it doesn't have permission.
-
 ## Execution
 
 When given an {output_folder}, the AI agent will perform the following steps, reading each file and following it's instructions in order:
@@ -92,12 +91,14 @@ When given an {output_folder}, the AI agent will perform the following steps, re
 - [./2-categorize-files.md](./2-categorize-files.md)
     - Categorizes and organizes files by their purpose and functionality
 - [./3-identify-architecture.md](./3-identify-architecture.md)
-    - Examines the project structure and identifies architectural patterns and design decisions
+    - Examines the project structure and identifies architectural patterns and design decisions from a **Software Architect** perspective; produces a Mermaid architecture diagram
 - [./4-domain-deep-dive.md](./4-domain-deep-dive.md) 
-    - Analyzes the business domain and understands the application's core functionality
+    - Analyzes each architectural domain from both a **Software Developer** and **Product Manager** perspective, covering implementation patterns and user-facing functionality
 - [./5-styleguide-generation.md](./5-styleguide-generation.md)
-    - Generates style guidelines and coding standards based on existing code patterns
+    - Generates a single style guide documenting per-category conventions and cross-cutting patterns, approached as a **Software Developer**
 - [./6-build-instructions.md](./6-build-instructions.md)
-    - Identifies key features and capabilities of the application and creates the application's instruction file
+    - Synthesizes all prior analysis into two output files: `{final_output_file}` (for AI tools) and `OVERVIEW.md` (for human collaborators)
+- [./7-validate.md](./7-validate.md)
+    - Reviews the generated instruction file for completeness, flags missing coverage, and lists any skipped domains
 
-Each prompt should be provided with the {output_folder} parameter to ensure consistent output location.
+Each prompt should be provided with the {output_folder} and {final_output_file} parameters to ensure consistent output location.

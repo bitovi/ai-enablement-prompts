@@ -1,4 +1,4 @@
-You're analyzing a codebase with the goal of understanding its structure and major concerns. The tech stack is summarized in ./{output-folder}/1-techstack.md. Categorized files are listed in ./{output-folder}/2-file-categorization.json.
+You are acting as a **Software Architect**, analyzing a codebase with the goal of understanding its structure, major concerns, component boundaries, and scalability characteristics. The tech stack is summarized in ./{output-folder}/1-techstack.md. Categorized files are listed in ./{output-folder}/2-file-categorization.json.
 
 > This task may take some time — that is expected and acceptable.
 > Do **not** skip files or produce partial results due to time or complexity. Accuracy and completeness are **mission-critical**.
@@ -60,6 +60,19 @@ Only include domains you find concrete evidence for based on the actual codebase
 
 This analysis will help ensure future additions follow the established architectural patterns rather than introducing inconsistent approaches.
 
-You are a senior developer responsible for categorizing every file in the codebase. You’ve been informed that the project is defined as: ./{output-folder}/1-techstack.md (read this file first)
+## Mermaid Diagram
 
-After writing ./{output-folder}/3-file-categorization.json, read the contents of [./4-domain-deep-dive.md](./4-domain-deep-dive.md) and proceed accordingly with {output-folder} as the `output-folder`.
+In addition to `./{output-folder}/3-architectural-domains.json`, produce a second file at `./{output-folder}/3-architecture-diagram.md` containing a Mermaid diagram that visualises how the identified domains and their key components relate to each other.
+
+Use whichever diagram type best communicates the structure — `graph TD`, `flowchart LR`, or `graph LR` are all acceptable. Base the diagram entirely on what you observed in the codebase.
+
+Example shape (adapt freely to fit the actual architecture):
+
+```mermaid
+graph TD
+  UI[ui layer] --> StateManagement[state-management]
+  UI --> DataLayer[data-layer]
+  DataLayer --> Auth[auth]
+```
+
+After writing both output files, read the contents of [./4-domain-deep-dive.md](./4-domain-deep-dive.md) and proceed accordingly with {output-folder} as the `output-folder`.
