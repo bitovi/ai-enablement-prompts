@@ -1,0 +1,9 @@
+{
+  "name": "creating-prompts",
+  "description": "Skills for creating new agent skills for Claude Code and VS Code Copilot",
+  "version": "1.0.0",
+  "author": {
+    "name": "Bitovi",
+    "url": "https://www.bitovi.com"
+  }
+}

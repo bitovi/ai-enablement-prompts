@@ -1,0 +1,17 @@
+{
+  "name": "bitovi-ai-enablement",
+  "owner": {
+    "name": "Bitovi",
+    "email": "contact@bitovi.com"
+  },
+  "metadata": {
+    "description": "AI enablement skills and prompts for development workflows"
+  },
+  "plugins": [
+    {
+      "name": "creating-prompts",
+      "source": "./plugins/creating-prompts",
+      "description": "Skills for creating new agent skills for Claude Code and VS Code Copilot"
+    }
+  ]
+}
