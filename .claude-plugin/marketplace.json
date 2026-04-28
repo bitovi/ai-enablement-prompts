@@ -12,6 +12,36 @@
       "name": "creating-prompts",
       "source": "./plugins/creating-prompts",
       "description": "Skills for creating new agent skills for Claude Code and VS Code Copilot"
+    },
+    {
+      "name": "code",
+      "source": "./plugins/code",
+      "description": "Baseline planning, spec, and codebase understanding skills. Works with any codebase, any stack."
+    },
+    {
+      "name": "react",
+      "source": "./plugins/react",
+      "description": "Core React component development patterns — modlet structure, component extraction, registry, reuse, and validation."
+    },
+    {
+      "name": "react-mock",
+      "source": "./plugins/react-mock",
+      "description": "Mock data and data model patterns for Zod-based React apps — sample data generation, data model management, and feature workflows."
+    },
+    {
+      "name": "figma-react",
+      "source": "./plugins/figma-react",
+      "description": "Full Figma-to-React lifecycle — design analysis, component implementation, visual sync, and Code Connect mapping. Requires Figma MCP."
+    },
+    {
+      "name": "playwright",
+      "source": "./plugins/playwright",
+      "description": "Playwright-based QA workflows — E2E testing, debugging, responsive verification, visual diffing, and pixel-perfect orchestration. Requires Playwright MCP."
+    },
+    {
+      "name": "trpc-prisma",
+      "source": "./plugins/trpc-prisma",
+      "description": "Type-safety patterns for tRPC + Prisma monorepos — AppRouter type inference and package instruction templates."
     }
   ]
 }

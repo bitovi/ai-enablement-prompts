@@ -1,6 +1,8 @@
 # Instruction Generation Prompt Chain
 
-This project provides an AI-powered prompt chain designed to generate a comprehensive instructions file `{final_output_file}.md` (ex. `copilot-instruction.md`) by analyzing the structure, patterns, and intent of a codebase.
+> **⚠️ This prompt chain has moved.** The individual prompt files that used to live here have been consolidated into a plugin skill. Agents should use the skill at [`/plugins/code/skills/instruction-generation/SKILL.md`](../../plugins/code/skills/instruction-generation/SKILL.md) instead.
+
+This project provides an AI-powered prompt chain designed to generate a comprehensive instructions file (e.g., `copilot-instructions.md`) by analyzing the structure, patterns, and intent of a codebase.
 
 The resulting file is designed to help AI tools like GitHub Copilot operate more effectively within the project by providing them with clear architectural context, domain understanding, and stylistic guidelines.
 
@@ -24,80 +26,49 @@ This prompt chain guides an AI agent through a series of structured steps to ext
 - Understanding domain concepts and key features
 - Generating stylistic and structural guidance for future code contributions
 
-The final output, `{final_output_file}.md` (the name of this file is a parameter that must be passed into the AI Agent), serves as a high-level onboarding and guidance document that aligns AI-generated code with your project's existing conventions and design.
+The final output serves as a high-level onboarding and guidance document that aligns AI-generated code with your project's existing conventions and design.
 
 ## Usage
 
-To use this prompt chain, write something similar to the following in your agent, be sure to modify the parameters at the top accordingly:
+The prompt chain is now packaged as a plugin skill. To use it:
+
+1. Install the `bitovi/ai-enablement-prompts` plugin
+2. Ask your agent to "generate instruction files" or "analyze this codebase" — the `instruction-generation` skill will be invoked automatically
+
+Or point your agent directly at the skill:
 
 ```
-{output_folder} = .results
+Read and follow the instructions in plugins/code/skills/instruction-generation/SKILL.md
+
+{output-folder} = .results
 {final_output_file} = /.github/copilot-instructions.md
-
-You are assisting with generating a {final_output_file} file using a multi-step prompt chain.
-
-1. Open this repository on GitHub: https://github.com/bitovi/ai-enablement-prompts.
-2. Navigate to the `/understanding-code/instruction-generation` folder within the repo.
-3. Review all the prompt files in this folder WITHOUT executing them. 
-    - This will help you understand the full scope of the prompt chain.
-4. Confirm you have a full understanding of the prompt chain sequence.
-5. Once you're familiar with the flow, begin executing the prompts in numerical order:
-    - 1-determine-techstack.md
-    - 2-categorize-files.md
-    - 3-identify-architecture.md
-    - 4-domain-deep-dive.md
-    - 5-styleguide-generation.md
-    - 6-build-instructions.md
-6. For each step, output results into a corresponding `{output_folder}/` folder.
-    - Mirror the step’s filename e.g., `1-determine-techstack.md` > `{output_folder}/1-determine-techstack.md`.
-
-Stop ONLY when:
-    - All `instruction-generation` steps are complete
-    - A full `{final_output_file}` can be generated.
 ```
 
-## Agent Capabilities
-
-The AI agent executing this prompt chain is expected to support the following capabilities:
-
-- Reading and writing individual files
-- Reading and writing entire folders
-- Analyzing code structure, file organization, and implementation patterns
-- Identifying and understanding technology stacks, frameworks, and libraries
-- Generating structured instruction files based on project analysis
+The skill contains 6 sub-prompt files and a SKILL.md that orchestrates them via subagents, with Steps 3 (Architecture) and 5 (Style Guides) running in parallel.
 
 ## Parameters
 
-This prompt chain is expected to be provided the following:
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `{output-folder}` | Where intermediate analysis files are saved | `.results/` |
+| `{final_output_file}` | Final combined output file | `/.github/copilot-instructions.md` |
 
-- {output_folder} - A path to the folder where generated instruction files will be saved (e.g., `.results/`)
-- {final_output_file} - A file which combines all the work that's been done into a single place eg., `/.github/copilot-instructions.md`)
+### Recommended Defaults
 
-### Copilot
-- {output_folder} - `.results/`
-- {final_output_file} - `/.github/copilot-instructions.md`
-
-## Windsurf
-- {output_folder} - `.windsurf/`
-- {final_output_file} - `/.windsurf/instructions.md`
+| Tool | output-folder | final_output_file |
+|------|--------------|-------------------|
+| Copilot | `.results/` | `/.github/copilot-instructions.md` |
+| Windsurf | `.windsurf/` | `/.windsurf/instructions.md` |
+| Claude | `.results/` | `CLAUDE.md` |
 
 For Windsurf, you want to move `instructions.md` into the `.windsurf/rules/` directory manually, this is the directory for context files. Cascade is for some reason unable to generate files in there, it doesn't have permission.
 
-## Execution
+## Steps
 
-When given an {output_folder}, the AI agent will perform the following steps, reading each file and following it's instructions in order:
+The skill runs these steps (see the [SKILL.md](../../plugins/code/skills/instruction-generation/SKILL.md) for full details):
 
-- [./1-determine-techstack.md](./1-determine-techstack.md)
-    - Analyzes the codebase to identify the technology stack, frameworks, and libraries being used
-- [./2-categorize-files.md](./2-categorize-files.md)
-    - Categorizes and organizes files by their purpose and functionality
-- [./3-identify-architecture.md](./3-identify-architecture.md)
-    - Examines the project structure and identifies architectural patterns and design decisions
-- [./4-domain-deep-dive.md](./4-domain-deep-dive.md) 
-    - Analyzes the business domain and understands the application's core functionality
-- [./5-styleguide-generation.md](./5-styleguide-generation.md)
-    - Generates style guidelines and coding standards based on existing code patterns
-- [./6-build-instructions.md](./6-build-instructions.md)
-    - Identifies key features and capabilities of the application and creates the application's instruction file
-
-Each prompt should be provided with the {output_folder} parameter to ensure consistent output location.
+1. **Determine Tech Stack** — Analyzes the codebase to identify the technology stack, frameworks, and libraries
+2. **Categorize Files** — Categorizes and organizes files by their purpose and functionality
+3. **Identify Architecture** ⇄ **Style Guide Generation** (parallel) — Examines architectural patterns and generates style guides simultaneously
+4. **Domain Deep Dive** — Analyzes how each architectural domain is implemented with real code examples
+5. **Build Instructions** — Synthesizes all previous outputs into the final instruction file

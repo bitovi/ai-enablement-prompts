@@ -27,6 +27,10 @@
 		"atlassian": {
 			"url": "https://mcp.atlassian.com/v1/sse",
 			"type": "http"
+		},
+		"github": {
+			"type": "http",
+			"url": "https://api.githubcopilot.com/mcp/"
 		}
 	},
 	"inputs": []

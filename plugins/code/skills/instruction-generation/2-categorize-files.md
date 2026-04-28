@@ -1,4 +1,4 @@
-You are a senior developer responsible for categorizing every file in the codebase. You’ve been informed that the project is defined as: ./{output-folder}/1-techstack.md (read this file first)
+You are a senior developer responsible for categorizing every file in the codebase. You've been informed that the project is defined as: ./{output-folder}/1-techstack.md (read this file first)
 
 Your task:
 
@@ -27,5 +27,3 @@ You are permitted to take as long as necessary to:
 - Review every relevant file
 - Extract actual patterns and conventions
 - Produce complete, high-fidelity output
-
-After writing ./{output-folder}/2-file-categorization.json, read the contents of [./3-identify-architecture.md](./3-identify-architecture.md) and proceed accordingly with {output-folder} as the `output-folder`.

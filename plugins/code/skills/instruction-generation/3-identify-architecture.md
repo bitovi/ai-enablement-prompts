@@ -59,7 +59,3 @@ Write a JSON object to ./{output-folder}/3-architectural-domains.json like so:
 Only include domains you find concrete evidence for based on the actual codebase.
 
 This analysis will help ensure future additions follow the established architectural patterns rather than introducing inconsistent approaches.
-
-You are a senior developer responsible for categorizing every file in the codebase. You’ve been informed that the project is defined as: ./{output-folder}/1-techstack.md (read this file first)
-
-After writing ./{output-folder}/3-file-categorization.json, read the contents of [./4-domain-deep-dive.md](./4-domain-deep-dive.md) and proceed accordingly with {output-folder} as the `output-folder`.

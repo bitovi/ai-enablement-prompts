@@ -1,0 +1,8 @@
+{
+  "name": "react-mock",
+  "description": "Mock data and data model patterns for Zod-based React apps — sample data generation, data model management, and end-to-end feature implementation workflows.",
+  "author": {
+    "name": "Bitovi",
+    "url": "https://www.bitovi.com"
+  }
+}
