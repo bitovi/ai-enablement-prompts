@@ -40,7 +40,7 @@ jobs:
 
       - name: Copy plugins
         run: |
-          cp -r source/plugins/. target/plugins/
+          cp -r source/plugins/. target/ai-enablement-plugins/
 
       - name: Merge marketplace
         run: |
@@ -50,12 +50,13 @@ jobs:
           mkdir -p "$(dirname "$TARGET")"
 
           if [ ! -f "$TARGET" ]; then
-            cp "$SOURCE" "$TARGET"
+            jq '.plugins[].source |= gsub("^\\./plugins/"; "./ai-enablement-plugins/")' "$SOURCE" > "$TARGET"
           else
             # Upsert plugins from source into target by name (source wins on conflict)
+            # Rewrite source paths from ./plugins/ to ./ai-enablement-plugins/ before merging
             jq -s '
               .[0] as $target |
-              .[1] as $source |
+              (.[1] | .plugins[].source |= gsub("^\\./plugins/"; "./ai-enablement-plugins/")) as $source |
               $target | .plugins = (
                 ($target.plugins + $source.plugins) |
                 group_by(.name) |
