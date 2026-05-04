@@ -25,7 +25,7 @@ Stop and invoke figma-design-react:
    ```javascript
    runSubagent({
      description: "Run figma-design-react for {component-name}",
-     prompt: `Read the skill file at .github/skills/figma-design-react/SKILL.md and follow it to analyze the Figma design at:
+     prompt: `Read the figma-design-react skill file and follow it to analyze the Figma design at:
      
      {figma-url}
      

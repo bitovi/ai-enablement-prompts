@@ -28,7 +28,7 @@ A single script that handles both discovery and full extraction with batched API
 
 **Usage:**
 ```bash
-node .github/skills/figma-explore/figma-extract-all.js <figmaFileUrl> [options]
+node <path-to-skills>/figma-explore/figma-extract-all.js <figmaFileUrl> [options]
 ```
 
 **Options:**
@@ -41,13 +41,13 @@ node .github/skills/figma-explore/figma-extract-all.js <figmaFileUrl> [options]
 
 ### Quick Discovery (1 API call)
 ```bash
-node .github/skills/figma-explore/figma-extract-all.js <url> --list-only
+node <path-to-skills>/figma-explore/figma-extract-all.js <url> --list-only
 ```
 Outputs JSON with component names, IDs, and URLs to stdout.
 
 ### Full Extraction (batched)
 ```bash
-node .github/skills/figma-explore/figma-extract-all.js <url>
+node <path-to-skills>/figma-explore/figma-extract-all.js <url>
 ```
 Writes to `.temp/figma-explore/`:
 - `figma-components-index.json` - Summary index
@@ -80,12 +80,12 @@ If not set:
 
 **Quick discovery:**
 ```bash
-source .env && node .github/skills/figma-explore/figma-extract-all.js "<figmaUrl>" --list-only
+source .env && node <path-to-skills>/figma-explore/figma-extract-all.js "<figmaUrl>" --list-only
 ```
 
 **Full extraction:**
 ```bash
-source .env && node .github/skills/figma-explore/figma-extract-all.js "<figmaUrl>"
+source .env && node <path-to-skills>/figma-explore/figma-extract-all.js "<figmaUrl>"
 ```
 
 ### Step 3: Use Results
@@ -93,8 +93,8 @@ source .env && node .github/skills/figma-explore/figma-extract-all.js "<figmaUrl
 **Index file** (`.temp/figma-explore/figma-components-index.json`):
 ```json
 {
-  "fileName": "Obra shadcn/ui",
-  "fileKey": "MQUbIrlfuM8qnr9XZ7jc82",
+  "fileName": "My Design System",
+  "fileKey": "abc123DEF456",
   "totalComponents": 45,
   "components": [
     { "name": "Button", "id": "16:1234", "url": "..." }

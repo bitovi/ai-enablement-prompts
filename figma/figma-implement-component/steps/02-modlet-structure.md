@@ -9,7 +9,7 @@ Invoke the `create-react-modlet` skill to create the modlet folder structure.
 ```javascript
 runSubagent({
   description: "Create modlet for {ComponentName}",
-  prompt: `Read the skill file at .github/skills/create-react-modlet/SKILL.md and follow it to create a visual modlet for {ComponentName} at:
+  prompt: `Read the create-react-modlet skill file and follow it to create a visual modlet for {ComponentName} at:
   
   packages/client/src/components/common/{ComponentName}/
   
