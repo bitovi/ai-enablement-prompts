@@ -27,7 +27,11 @@
 		"atlassian": {
 			"url": "https://mcp.atlassian.com/v1/sse",
 			"type": "http"
-		}
+		},
+		    "enterprise-ai": {
+      		"type": "http",
+      		"url": "http://localhost:3111/mcp"
+    	}
 	},
 	"inputs": []
 }
