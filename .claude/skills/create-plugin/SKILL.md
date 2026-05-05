@@ -16,10 +16,11 @@ A plugin is an installable package of AI agent skills distributed through this m
 ```
 ai-enablement-prompts/
 ├── .claude-plugin/
-│   └── marketplace.json          # Marketplace catalog — lists ├── .github/
+│   └── marketplace.json          # Marketplace catalog — lists all plugins
+├── .github/
 │   └── plugin/
 │       └── marketplace.json      # Symlink to .claude-plugin/marketplace.json
-└── plugins/                      # All plugins
+└── plugins/
     └── <plugin-name>/
         ├── .claude-plugin/
         │   └── plugin.json       # Plugin identity (name, description, author)
