@@ -49,6 +49,17 @@ Then each team member installs the plugin once from:
 - **Extensions view** → search `@agentPlugins` → find the plugin → Install
 - **OR** Command Palette → "Chat: Install Plugin From Source" → enter `https://github.com/bitovi/ai-enablement-prompts`
 
+### GitHub Copilot CLI
+
+Add the marketplace and install plugins via the Copilot CLI:
+
+```bash
+copilot plugin marketplace add bitovi/ai-enablement-prompts
+copilot plugin install code@bitovi-ai-enablement
+```
+
+The marketplace catalog is served from `.github/plugin/marketplace.json` (a symlink to `.claude-plugin/marketplace.json`), so both Claude Code and the Copilot CLI read from the same source of truth.
+
 ---
 
 ## Testing Locally (Claude Code)

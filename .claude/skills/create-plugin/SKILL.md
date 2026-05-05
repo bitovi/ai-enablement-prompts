@@ -16,8 +16,10 @@ A plugin is an installable package of AI agent skills distributed through this m
 ```
 ai-enablement-prompts/
 ├── .claude-plugin/
-│   └── marketplace.json          # Marketplace catalog — lists ALL plugins
-└── plugins/
+│   └── marketplace.json          # Marketplace catalog — lists ├── .github/
+│   └── plugin/
+│       └── marketplace.json      # Symlink to .claude-plugin/marketplace.json
+└── plugins/                      # All plugins
     └── <plugin-name>/
         ├── .claude-plugin/
         │   └── plugin.json       # Plugin identity (name, description, author)
@@ -161,6 +163,13 @@ Add to `.vscode/settings.json` (commit this file):
 \```
 
 Then install from: **Extensions view** → search `@agentPlugins` → find `<plugin-name>` → Install
+
+### GitHub Copilot CLI
+
+\```bash
+copilot plugin marketplace add bitovi/ai-enablement-prompts
+copilot plugin install <plugin-name>@bitovi-ai-enablement
+\```
 ```
 
 ## Step 6: Register in Marketplace
@@ -174,6 +183,8 @@ Add the plugin to `.claude-plugin/marketplace.json` in the `plugins` array:
   "description": "Same one-line description as plugin.json"
 }
 ```
+
+`.github/plugin/marketplace.json` is a symlink to `.claude-plugin/marketplace.json` — do not edit it separately. Claude Code and the GitHub Copilot CLI both resolve to the same file.
 
 ## Step 7: Verify
 
