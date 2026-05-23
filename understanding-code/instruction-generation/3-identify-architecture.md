@@ -1,4 +1,6 @@
-You're analyzing a codebase with the goal of understanding its structure and major concerns. The tech stack is summarized in ./{output-folder}/1-techstack.md. Categorized files are listed in ./{output-folder}/2-file-categorization.json.
+# Step 3: Identify Architecture (with Influence from Previous Outputs)
+
+You're analyzing a codebase with the goal of understanding its structure and major concerns. Begin by reading `./{output-folder}/techstack.md` and `./{output-folder}/file-categorization.json` to understand the project context. Use any previous architectural analyses as influence, but always verify their correctness and relevance against the current codebase. Update or remove outdated information as needed.
 
 > This task may take some time — that is expected and acceptable.
 > Do **not** skip files or produce partial results due to time or complexity. Accuracy and completeness are **mission-critical**.
@@ -7,10 +9,12 @@ You're analyzing a codebase with the goal of understanding its structure and maj
 > - Review every relevant file
 > - Extract actual patterns and conventions
 > - Produce complete, high-fidelity output
->   If a file is listed in ./{output-folder}/2-file-categorization.json or is part of a relevant domain, it **must** be included in your analysis.
+>   If a file is listed in `./{output-folder}/categorization.json` or is part of a relevant domain, it **must** be included in your analysis.
 >   Do not optimize for speed or brevity. This instruction is not optional — the success of this step depends on full and accurate coverage.
+>   Always prioritize accuracy and clarity over simply copying previous architectural summaries.
 
-Your Task:
+## Your Task
+
 Determine which architectural domains are present in the project. Consider:
 
 - File structure and naming patterns
@@ -26,8 +30,7 @@ For each domain you identify, determine:
 - **CONSTRAINTS**: What types of implementations are clearly expected? (e.g., "all canvas work uses useCanvas hook", "all fractals use chaos game algorithms")
 
 Example Domains to Detect:
-You do not need to detect all of these — only include what's truly present.
-There may also be domains that aren't listed here but are relevant to this specific project. Include any meaningful domains you identify.
+You do not need to detect all of these — only include what's truly present. There may also be domains that aren't listed here but are relevant to this specific project. Include any meaningful domains you identify. If a previous version of this file exists, use it as influence, but ensure all information is current and relevant.
 
 Examples:
 
@@ -62,4 +65,4 @@ This analysis will help ensure future additions follow the established architect
 
 You are a senior developer responsible for categorizing every file in the codebase. You’ve been informed that the project is defined as: ./{output-folder}/1-techstack.md (read this file first)
 
-After writing ./{output-folder}/3-file-categorization.json, read the contents of [./4-domain-deep-dive.md](./4-domain-deep-dive.md) and proceed accordingly with {output-folder} as the `output-folder`.
+After writing `./{output-folder}/architectural-domains.json`, read the contents of [./4-domain-deep-dive.md](./4-domain-deep-dive.md) and proceed accordingly, using `{output-folder}` as the `output-folder`.
