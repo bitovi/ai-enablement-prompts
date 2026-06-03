@@ -1,0 +1,9 @@
+{
+  "name": "brand-kit",
+  "description": "Pull brand assets (colors, logos, fonts) from a website and apply them so AI-built artifacts stay on-brand",
+  "version": "1.0.0",
+  "author": {
+    "name": "Bitovi",
+    "url": "https://www.bitovi.com"
+  }
+}
