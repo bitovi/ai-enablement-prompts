@@ -76,9 +76,9 @@ Run all subagents in parallel.
 
 ### Phase 5: Scope Analysis
 
-Use `analyze-feature-scope` sub-skill to produce `.temp/cascade/scope-analysis.md`. This categorizes every feature by scope (☐/✅/⏬/❌/❓/💬) using the epic context as the primary source of truth.
+Use `cascade-analyze-feature-scope` sub-skill to produce `.temp/cascade/scope-analysis.md`. This categorizes every feature by scope (☐/✅/⏬/❌/❓/💬) using the epic context as the primary source of truth.
 
-**Self-healing check**: If the `analyze-feature-scope` sub-skill recommends **CLARIFY** (>5 unanswered ❓ and no previous scope analysis), warn the user that there are many open questions. Suggest running `generate-behavior-questions` first to get answers before writing the story. Proceed only if the user confirms.
+**Self-healing check**: If the `cascade-analyze-feature-scope` sub-skill recommends **CLARIFY** (>5 unanswered ❓ and no previous scope analysis), warn the user that there are many open questions. Suggest running `generate-behavior-questions` first to get answers before writing the story. Proceed only if the user confirms.
 
 ### Phase 6: Read Existing Description
 

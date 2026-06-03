@@ -6,17 +6,22 @@ A key feature is **re-running to refine**: on subsequent runs it flips open ques
 
 ## Skills
 
-| Skill | Description |
+This plugin bundles the entry skill plus the three sub-skills it dispatches to during a run:
+
+| Skill | Role |
 |---|---|
-| `write-jira-story` | Gathers linked context, analyzes Figma frames + scope, and writes/refines the Jira story (with `example-story.md` as a worked reference). |
+| `write-jira-story` | Entry — gathers linked context, analyzes Figma frames + scope, writes/refines the Jira story (`example-story.md` is a worked reference). |
+| `cascade-analyze-figma-frame` | Sub-skill — analyzes one Figma frame from extracted local files (Phase 4, Path A). |
+| `cascade-analyze-figma-frame-mcp` | Sub-skill — analyzes one Figma frame via the MCP cache (Phase 4, Path B). |
+| `cascade-analyze-feature-scope` | Sub-skill — categorizes features by scope using the epic as source of truth (Phase 5). |
 
 ## Prerequisites
 
 This skill orchestrates an existing **Cascade** toolchain — it is not standalone:
 
-- **Cascade MCP server**, providing the tools the skill calls: `extract-linked-resources`, `figma-batch-zip`, `figma-batch-cache`, `figma-frame-data`, `atlassian-get-issue`, `atlassian-update-issue-description`.
-- **Companion sub-skills** it dispatches to (install alongside if you use those phases): `cascade-analyze-figma-frame`, `cascade-analyze-figma-frame-mcp`, `analyze-feature-scope`, and (optionally) `generate-behavior-questions`.
+- **Cascade MCP server**, providing the tools the skills call: `extract-linked-resources`, `figma-batch-zip`, `figma-batch-cache`, `figma-frame-data`, `atlassian-get-issue`, `atlassian-update-issue-description`.
 - Access to the **Jira / Confluence / Figma** resources referenced by the issue.
+- *Optional*: the `generate-behavior-questions` skill (a separate Cascade workflow). `write-jira-story` only *suggests* running it first when there are many open questions — it is not bundled here.
 
 ## Installation
 
