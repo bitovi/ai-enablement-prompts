@@ -1,0 +1,9 @@
+{
+  "name": "write-jira-story",
+  "description": "Write or refine a Jira story description with full context from Figma, Confluence, Google Docs, and the parent epic — scope analysis, Gherkin acceptance criteria, and ❓→💬 question flipping",
+  "version": "1.0.0",
+  "author": {
+    "name": "Bitovi",
+    "url": "https://www.bitovi.com"
+  }
+}
