@@ -1,0 +1,9 @@
+{
+  "name": "figma-from-code-skill",
+  "description": "Agent-driven code-to-Figma rebuild — discover components, create variables/structure, build components tier-by-tier, assemble screens, and validate. The Workflow-tool-free flavor of figma-from-code.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Bitovi",
+    "url": "https://www.bitovi.com"
+  }
+}
