@@ -44,6 +44,50 @@ Use semantic names; never hardcode a hex twice. Each token lists where it should
 }
 ```
 
+## Spacing
+
+Spacing scale (smallest → largest). Use these steps for padding, margins, and gaps
+rather than arbitrary values.
+
+- `{{SPACE_XS}}`, `{{SPACE_SM}}`, `{{SPACE_MD}}`, `{{SPACE_LG}}`, `{{SPACE_XL}}` — {{SPACING_NOTE}}
+
+```css
+:root {
+  --space-xs: {{SPACE_XS}};
+  --space-sm: {{SPACE_SM}};
+  --space-md: {{SPACE_MD}};
+  --space-lg: {{SPACE_LG}};
+  --space-xl: {{SPACE_XL}};
+}
+```
+
+## Border radius
+
+- `{{RADIUS_SM}}` — small (inputs, chips), `{{RADIUS_MD}}` — default (cards, buttons), `{{RADIUS_LG}}` — large (modals), `{{RADIUS_PILL}}` — pill/round.
+
+```css
+:root {
+  --radius-sm: {{RADIUS_SM}};
+  --radius-md: {{RADIUS_MD}};
+  --radius-lg: {{RADIUS_LG}};
+  --radius-pill: {{RADIUS_PILL}};
+}
+```
+
+## Shadows / elevation
+
+- `{{SHADOW_SM}}` — subtle (cards, inputs)
+- `{{SHADOW_MD}}` — raised (dropdowns, popovers)
+- `{{SHADOW_LG}}` — overlay (modals, dialogs)
+
+```css
+:root {
+  --shadow-sm: {{SHADOW_SM}};
+  --shadow-md: {{SHADOW_MD}};
+  --shadow-lg: {{SHADOW_LG}};
+}
+```
+
 ## Typography
 
 - **Headings**: {{HEADING_FONT}} (fallback: {{HEADING_FALLBACK}})
@@ -85,5 +129,6 @@ Assets are stored in `assets/` next to this file. Reference them by relative pat
 - **Headings** (large text) use {{HEADING_FONT}}; **body** uses {{BODY_FONT}}; keep the fallbacks.
 - **Primary** color drives main CTAs and key emphasis; **accents** are for highlights, never body text.
 - **Neutrals** carry text, backgrounds, and borders — keep contrast accessible (AA: 4.5:1 for body text).
+- **Spacing/radius/shadow**: use the scale steps above for padding, margins, gaps, corners, and elevation — snap to the nearest token instead of arbitrary px values.
 - Reference logos from `assets/` by path; do not redraw or approximate them.
-- When a value isn't covered here, derive it from the nearest token rather than introducing a new color/font.
+- When a value isn't covered here, derive it from the nearest token rather than introducing a new color/font/size.

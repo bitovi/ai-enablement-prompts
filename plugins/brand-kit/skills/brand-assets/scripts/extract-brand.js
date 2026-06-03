@@ -258,6 +258,80 @@ function extractFontFaceSrc(css, baseUrl) {
 }
 
 // ============================================================================
+// Layout tokens: spacing, border-radius, shadows
+// ============================================================================
+
+// Declared CSS custom properties whose NAME matches a pattern (e.g. --space-4).
+function extractVarsByName(css, nameRe) {
+  const vars = {};
+  const re = /(--[a-z0-9-]+)\s*:\s*([^;}{]+)[;}]/gi;
+  let m;
+  while ((m = re.exec(css))) {
+    const name = m[1].trim();
+    const value = m[2].trim();
+    if (nameRe.test(name) && value && !value.startsWith('var(')) vars[name] = value;
+  }
+  return vars;
+}
+
+function rankCounts(counts, limit) {
+  return Object.entries(counts)
+    .map(([value, count]) => ({ value, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
+}
+
+// Approximate px size of a length token for sorting (rem/em assumed 16px base).
+function pxOf(v) {
+  const m = String(v).match(/^(-?\d*\.?\d+)(px|rem|em)$/i);
+  if (!m) return Infinity;
+  const n = parseFloat(m[1]);
+  return /r?em/i.test(m[2]) ? n * 16 : n;
+}
+
+// Spacing: length tokens used by margin/padding/gap (shorthand split into parts).
+function tallySpacing(css) {
+  const counts = {};
+  const re = /(?:margin|padding|gap|row-gap|column-gap)[a-z-]*\s*:\s*([^;}{]+)[;}]/gi;
+  let m;
+  while ((m = re.exec(css))) {
+    for (const t of m[1].trim().split(/\s+/)) {
+      const tok = t.toLowerCase();
+      if (/^-?\d*\.?\d+(px|rem|em)$/i.test(tok) && !/^-?0(px|rem|em)?$/i.test(tok)) {
+        counts[tok] = (counts[tok] || 0) + 1;
+      }
+    }
+  }
+  return counts;
+}
+
+// Border radius values (incl. %/pill); skips 0 and var() references.
+function tallyRadii(css) {
+  const counts = {};
+  const re = /border(?:-(?:top|bottom)-(?:left|right))?-radius\s*:\s*([^;}{]+)[;}]/gi;
+  let m;
+  while ((m = re.exec(css))) {
+    const v = m[1].replace(/\s+/g, ' ').trim().toLowerCase();
+    if (!v || v === '0' || v === '0px' || v === 'inherit' || v.startsWith('var(')) continue;
+    counts[v] = (counts[v] || 0) + 1;
+  }
+  return counts;
+}
+
+// Box-shadow values (full declaration; multi-shadow commas preserved).
+function tallyShadows(css) {
+  const counts = {};
+  const re = /box-shadow\s*:\s*([^;{}]+)[;}]/gi;
+  let m;
+  while ((m = re.exec(css))) {
+    const v = m[1].replace(/\s+/g, ' ').trim().toLowerCase();
+    if (!v || v === 'none' || v === 'inherit' || v.startsWith('var(')) continue;
+    counts[v] = (counts[v] || 0) + 1;
+  }
+  return counts;
+}
+
+// ============================================================================
 // HTML parsing (regex-based; intentionally dependency-free)
 // ============================================================================
 
@@ -457,6 +531,18 @@ async function main() {
   const googleFonts = findGoogleFontLinks(html);
   console.error(`  font families: ${fonts.families.length}; google-fonts links: ${googleFonts.length}`);
 
+  // 4b. Layout tokens: spacing, radius, shadows
+  const spacingRanked = rankCounts(tallySpacing(css), 16);
+  const spacingScale = [...new Set(spacingRanked.map((s) => s.value))].sort((a, b) => pxOf(a) - pxOf(b));
+  const spacingVars = extractVarsByName(css, /(?:^--)(?:space|spacing|gap|sp)(?:-|$)/i);
+  const radii = rankCounts(tallyRadii(css), 12);
+  const radiusVars = extractVarsByName(css, /(?:radius|rounded|corner)/i);
+  const shadows = rankCounts(tallyShadows(css), 8);
+  const shadowVars = extractVarsByName(css, /(?:shadow|elevation)/i);
+  console.error(
+    `  spacing values: ${spacingScale.length}; radii: ${radii.length}; shadows: ${shadows.length}`
+  );
+
   // 5. Assets
   const candidates = findAssetCandidates(html, args.url);
   const downloaded = [];
@@ -501,6 +587,19 @@ async function main() {
       googleFontsLinks: googleFonts,
       fontFiles,
     },
+    spacing: {
+      scale: spacingScale,
+      ranked: spacingRanked,
+      namedVars: spacingVars,
+    },
+    radii: {
+      ranked: radii,
+      namedVars: radiusVars,
+    },
+    shadows: {
+      ranked: shadows,
+      namedVars: shadowVars,
+    },
     assets: downloaded,
   };
   const jsonPath = path.join(outDir, 'extracted.json');
@@ -512,6 +611,9 @@ async function main() {
   console.error('Accents:  ' + grouped.accents.map((c) => `${c.hex} (${c.count})`).join(', '));
   console.error('Neutrals: ' + grouped.neutrals.map((c) => `${c.hex} (${c.count})`).join(', '));
   console.error('Fonts:    ' + fonts.families.slice(0, 6).join(', '));
+  console.error('Spacing:  ' + spacingScale.slice(0, 10).join(', '));
+  console.error('Radii:    ' + radii.slice(0, 6).map((r) => r.value).join(', '));
+  console.error('Shadows:  ' + shadows.length + ' distinct (top: ' + (shadows[0] ? shadows[0].value.slice(0, 48) : 'none') + ')');
   console.error('Assets:   ' + downloaded.map((d) => d.file).join(', '));
   console.error(`\nWrote ${path.relative(process.cwd(), jsonPath)} and ${downloaded.length} asset(s) to ${path.relative(process.cwd(), assetsDir)}/`);
 }

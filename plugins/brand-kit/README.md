@@ -54,4 +54,4 @@ The skill reads `brand-kit/brand-guidelines.md` and applies the brand's colors (
 
 ## How extraction works
 
-A dependency-free Node 18+ script (`scripts/extract-brand.js`) fetches the page HTML and its stylesheets, ranks the color palette by usage, collects font stacks and `@font-face`/Google Fonts references, and downloads logos, favicons, and social images. The agent then sanity-checks the evidence (frequency ranking can surface incidental colors) and synthesizes a clean, Anthropic-style `brand-guidelines.md`.
+A dependency-free Node 18+ script (`scripts/extract-brand.js`) fetches the page HTML and its stylesheets, ranks the color palette by usage, collects font stacks and `@font-face`/Google Fonts references, captures the **spacing scale, border-radius, and box-shadow** values (and their named design-token CSS vars), and downloads logos, favicons, and social images. The agent then sanity-checks the evidence (frequency ranking can surface incidental colors) and synthesizes a clean, Anthropic-style `brand-guidelines.md`.

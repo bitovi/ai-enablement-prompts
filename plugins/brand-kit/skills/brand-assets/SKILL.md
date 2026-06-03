@@ -32,7 +32,7 @@ Requires Node.js 18+ (native `fetch`). No dependencies to install.
 node ${CLAUDE_SKILL_DIR}/scripts/extract-brand.js "<website-url>" --output brand-kit
 ```
 
-This writes `brand-kit/extracted.json` (ranked palette, named CSS color vars, font stacks, Google-Fonts links, `@font-face` URLs, and an asset manifest) and downloads logos/favicons/OG images into `brand-kit/assets/`.
+This writes `brand-kit/extracted.json` (ranked palette, named CSS color vars, font stacks, Google-Fonts links, `@font-face` URLs, a **spacing** scale, **border-radius** values, **box-shadow** values — each with their named CSS vars — and an asset manifest) and downloads logos/favicons/OG images into `brand-kit/assets/`.
 
 ### Step 2: Sanity-check the evidence
 
@@ -43,6 +43,7 @@ Read `brand-kit/extracted.json`, then **verify against what the brand actually l
 - Pick the **one** primary, 1–3 accents, and dark/light/mid neutrals. Discard noise.
 - Identify the heading vs body font from `fonts.families` / `fonts.stacks` (the first non-generic family in each stack). Note the fallback chain.
 - Pick the best primary logo from `assets/` (prefer an SVG wordmark/lockup over a favicon) and note light/dark variants if present.
+- **Spacing / radius / shadows**: prefer the **named design-token vars** (`spacing.namedVars`, `radii.namedVars`, `shadows.namedVars` — e.g. `--radius-md`, `--spacing-lg`) as the source of truth; they're far stronger than raw frequency. Distill into a small scale (xs→xl spacing; sm/md/lg radius; sm/md/lg shadow). **Ignore framework plumbing** like `--tw-shadow*`, `--tw-ring*` (Tailwind internals, not real tokens), and drop noisy one-off shadow values. Fall back to `spacing.scale` / `radii.ranked` / `shadows.ranked` when a site has no named tokens.
 
 ### Step 3: Synthesize `brand-guidelines.md`
 
@@ -65,6 +66,7 @@ Read `brand-kit/brand-guidelines.md` (the source of truth). It already contains 
 - **Colors**: define the guideline's CSS variables once (`:root { --color-primary: … }`) and reference them everywhere — never hardcode a hex twice, never invent a color not derivable from a token.
 - **Fonts**: load via the recorded Google Fonts `<link>` or `@font-face`, and **always keep the fallback chain** so text renders before/without the webfont. Headings use the heading font; body uses the body font.
 - **Logos**: reference files from `brand-kit/assets/` by path — do not redraw, recolor, or approximate them. Use the light/dark variant that matches the background.
+- **Spacing, radius, shadows**: define the guideline's `--space-*`, `--radius-*`, and `--shadow-*` variables once and snap padding/margins/gaps, corners, and elevation to those steps — never sprinkle arbitrary px values.
 - **Contrast**: keep body text at AA (4.5:1). Accents are for emphasis, not body text.
 
 ### Step 3: Verify
