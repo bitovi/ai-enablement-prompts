@@ -12,6 +12,11 @@
       "name": "creating-prompts",
       "source": "./plugins/creating-prompts",
       "description": "Skills for creating new agent skills for Claude Code and VS Code Copilot"
+    },
+    {
+      "name": "figma-from-code",
+      "source": "./plugins/figma-from-code",
+      "description": "Rebuild a Figma file from a codebase — discover, tokenize, build components, assemble screens, validate"
     }
   ]
 }

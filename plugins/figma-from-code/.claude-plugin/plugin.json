@@ -1,0 +1,9 @@
+{
+  "name": "figma-from-code",
+  "description": "Rebuild a Figma file from a codebase — discover components, create variables/structure, build components tier-by-tier, assemble screens, and validate visual fidelity",
+  "version": "1.0.0",
+  "author": {
+    "name": "Bitovi",
+    "url": "https://www.bitovi.com"
+  }
+}
