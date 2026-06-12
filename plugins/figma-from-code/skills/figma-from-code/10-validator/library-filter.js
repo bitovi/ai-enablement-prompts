@@ -1,0 +1,47 @@
+const LIBRARY_PATTERNS = [
+  /^_/,
+  /^Suspense$/,
+  /^Fragment$/,
+  /^Provider$/,
+  /^Consumer$/,
+  /^Context$/,
+  /^Outlet$/,
+  /^Route$/,
+  /^Router$/,
+  /^Routes$/,
+  /^BrowserRouter$/,
+  /^MemoryRouter$/,
+  /^QueryClientProvider$/,
+  /^Hydrate$/,
+  /^ThemeProvider$/,
+  /^StrictMode$/,
+  /^Profiler$/,
+  /^ForwardRef$/,
+  /^Memo$/,
+  /^Lazy$/,
+  /^ErrorBoundary$/,
+  /^HelmetProvider$/,
+  /^\$/,
+  /^[a-z]/,
+  /Provider$/,
+  /^(Presence|AnimatePresence|MotionComponent)$/,
+  /^Primitive\./,
+  /^(Slot|SlotClone|Primitive)$/,
+  /\.(Slot|SlotClone|Slottable)$/,
+  /^Popper/,
+  /^Collapsible(Trigger|Content)?$/,
+  /^(AccordionHeader|SelectIcon)$/,
+  /^Select(ItemText|ItemIndicator|PopperPosition|Viewport|ScrollUpButton|ScrollDownButton|Portal)$/,
+  /^(Day|DayButton|Months?|MonthCaption|MonthGrid|Weeks?|Weekday|Weekdays|Nav|CaptionLabel|Chevron|Root)$/,
+  /^(Portal|Dismissable|FocusScope|DismissableLayer)$/,
+  /^(Collection|ItemSlots)/,
+  /Collection(Item)?Slot$/,
+  /^ReactQueryDevtools/,
+  /^(Toaster|Sonner)$/,
+];
+
+function isLibraryComponent(name) {
+  return LIBRARY_PATTERNS.some(p => p.test(name));
+}
+
+module.exports = { isLibraryComponent, LIBRARY_PATTERNS };
