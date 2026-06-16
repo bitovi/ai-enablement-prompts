@@ -1,47 +1,56 @@
 # Skill: Validate + Fix (Phase 5)
 
-Validates every built Figma component against its app screenshot, runs fix loops on mismatches (built-during-run components only), cleans up misplaced components on the Components page, and produces a structured report. Runs as a subagent dispatched by the orchestrator.
+Validates the completed Figma rebuild by comparing full-page screen frames against app screenshots. Instead of re-validating every individual component (which already passed during Phase 3's build loop), this phase checks the assembled screens as a whole — verifying that components compose correctly and that nothing was lost during screen assembly. Runs fix loops on mismatched screens and produces a structured report. Runs as a subagent dispatched by the orchestrator.
 
 ## When to Use
 
 - When `figma-from-code` orchestrator reaches Phase 5
-- Standalone to validate a completed rebuild
+- Standalone to validate assembled screens after a rebuild
 
 ## Required Inputs
 
-| Input                   | Description                                      | Source                                  |
-| ----------------------- | ------------------------------------------------ | --------------------------------------- |
-| `fileKey`               | Figma file key                                   | State ledger                            |
-| `builtComponents`       | Map of `{name: nodeId}` for all built components | `state.json -> builtComponents`         |
-| `preExistingComponents` | Immutable snapshot of pre-run components         | `state.json -> preExistingComponents`   |
-| `figmaNodes`            | All page and frame node IDs                      | `state.json -> figmaNodes`              |
-| `buildOrder`            | Tiered component list                            | `state.json -> buildOrder`              |
-| `devServerUrl`          | URL of the running dev server                    | `state.json → config.devServerUrl` (default `http://localhost:5173`) |
+| Input                   | Description                                        | Source                                                              |
+| ----------------------- | -------------------------------------------------- | ------------------------------------------------------------------- |
+| `fileKey`               | Figma file key                                     | State ledger                                                        |
+| `builtComponents`       | Map of `{name: nodeId}` for all built components   | `state.json -> builtComponents`                                     |
+| `figmaNodes`            | All page and frame node IDs                        | `state.json -> figmaNodes`                                          |
+| `buildOrder`            | Tiered component list                              | `state.json -> buildOrder`                                          |
+| `devServerUrl`          | URL of the running dev server                      | `state.json → config.devServerUrl` (default `http://localhost:5173`) |
+| `precaptureScreens`     | Screen manifest from Phase 2.5                     | `.temp/figma-from-code/precapture-screens.json`                     |
 
 ## Output Files
 
-| File                                            | Contents                                     | Consumed by       |
-| ----------------------------------------------- | -------------------------------------------- | ----------------- |
-| `.temp/figma-validation/report.md`              | Full validation report with comparison table | User review       |
-| `.temp/figma-from-code/validation-summary.json` | Small summary for the orchestrator           | Orchestrator only |
+| File                                            | Contents                                           | Consumed by       |
+| ----------------------------------------------- | -------------------------------------------------- | ----------------- |
+| `.temp/figma-validation/report.md`              | Full validation report with per-screen comparisons | User review       |
+| `.temp/figma-from-code/validation-summary.json` | Small summary for the orchestrator                 | Orchestrator only |
 
 ## Workflow
 
 > Placeholders like `{devServerUrl}` and `{skillRoot}` resolve from `state.json → config`.
 
-### 1. Run validation
+### 1. Validate screens (full-page comparisons only)
 
-Read and execute the `{skillRoot}/10-validator/SKILL.md` workflow inline. This:
+For each screen built in Phase 4 (read from `.temp/figma-from-code/build-results/screens/`):
 
-- Inventories all Figma components
-- Resolves variant nodes for component sets
-- Captures app + Figma screenshots and runs pixel diffs for each component sequentially (by tier)
-- Runs structural checks (variables, pages, screen sizes)
-- Produces `.temp/figma-validation/report.md`
+1. **Read the screen result** — get the screen's Figma node ID from `build-results/screens/{screenName}.json`
+2. **Capture a fresh Figma screenshot** — `get_screenshot(fileKey, screenNodeId)` at `scale: 1`
+3. **Compare against the app screenshot** — the pre-captured full-page screenshot from Phase 2.5:
+   ```bash
+   node {skillRoot}/scripts/compare.js \
+     ".temp/figma-from-code/screenshots/screens/{screenName}/app.png" \
+     ".temp/figma-validation/screenshots/{screenName}/figma.png" \
+     ".temp/figma-validation/screenshots/{screenName}/"
+   ```
+4. **Record the verdict** — thresholds: `matchPct ≥ 85%` → match, `70-85%` → minor_diff, `< 70%` → mismatch (screen thresholds are slightly lower than component thresholds because full pages have more variation in dynamic content)
 
-**Pre-Existing Components gate:** Components in `preExistingComponents` are validated **read-only**. Run screenshot + compare, record the verdict, but DO NOT invoke the fix loop. Surface mismatches in the report for user review.
+**Fix loop for mismatched screens:** For screens with `verdict: "mismatch"` or `"minor_diff"`, run up to 2 fix iterations:
+- Diagnose from `diff.png` — identify which region/component is off
+- Apply targeted fix via `use_figma` (adjust instance position, swap variant, fix spacing)
+- Re-screenshot and re-compare
+- If after 2 iterations the screen still doesn't pass, record as `partial_match`
 
-Components built during this run (in `builtComponents` but not in `preExistingComponents`) follow the full fix loop (up to 3 iterations) per the review/fix workflow in `plugins/figma-from-code/skills/figma-from-code/7-build-component/7b-review-fix-component/SKILL.md`.
+**Pre-existing screens** (in `state.json → preExistingScreens`) are compared **read-only** — screenshot and record the verdict, but do NOT run the fix loop. Surface mismatches for user review.
 
 ### 2. Clean up Components page layout
 
@@ -85,38 +94,40 @@ rm -f .temp/figma-from-code/pw-endpoint.txt
 
 ### 4. Write validation summary
 
-Parse the report and write a concise summary for the orchestrator:
+Parse the results and write a concise summary for the orchestrator:
 
 ```json
 {
-  "componentsCompared": 60,
-  "match": 52,
-  "minorDiff": 5,
-  "mismatch": 2,
-  "noAppReference": 12,
-  "fixedDuringValidation": 3,
-  "averageMatchPct": 91.4,
+  "screensCompared": 8,
+  "match": 6,
+  "minorDiff": 1,
+  "mismatch": 0,
+  "fixedDuringValidation": 1,
+  "averageMatchPct": 89.7,
   "overallVerdict": "PASS",
-  "preExistingFlagged": [{ "name": "OldButton", "verdict": "mismatch", "matchPct": 68.2 }],
+  "preExistingFlagged": [],
+  "screenResults": [
+    { "name": "CasesPage", "matchPct": 92.1, "verdict": "match" },
+    { "name": "CreateCasePage", "matchPct": 87.3, "verdict": "match" }
+  ],
   "reportPath": ".temp/figma-validation/report.md"
 }
 ```
 
 Write to `.temp/figma-from-code/validation-summary.json`.
 
-**Overall verdict:** `PASS` if >= 80% of compared components are `match`. Otherwise `FAIL`.
+**Overall verdict:** `PASS` if >= 75% of compared screens are `match`. Otherwise `FAIL`.
 
 ### 5. Report
 
 ```
 Phase 5 complete:
-- {componentsCompared} components validated
+- {screensCompared} screens validated (full-page comparison)
 - {match} match, {minorDiff} minor diff, {mismatch} mismatch
-- {noAppReference} skipped (no app reference)
 - {fixedDuringValidation} fixed during validation
 - Average match: {averageMatchPct}%
 - Overall verdict: {overallVerdict}
-- {preExistingFlagged.length} pre-existing components flagged for review
+- Individual components already validated during Phase 3 build loop (not re-checked)
 ```
 
 ## Skip / Resume

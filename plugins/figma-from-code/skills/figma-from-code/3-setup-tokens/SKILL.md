@@ -108,7 +108,7 @@ Write the returned JSON to `.temp/figma-from-code/variables.json`.
 Run the color resolution script to pre-compute all CSS variable colors as sRGB:
 
 ```bash
-node {skillRoot}/10-validator/resolve-colors.js \
+node {skillRoot}/scripts/resolve-colors.js \
   {cssPath} \
   [--tailwind {tailwindConfigPath}] \
   --output .temp/figma-from-code/resolved-colors.json
@@ -121,7 +121,7 @@ node {skillRoot}/10-validator/resolve-colors.js \
 Join `variables.json` and `resolved-colors.json` into the RGB-to-variable reverse index used by build agents and fix-loop rebind sweeps:
 
 ```bash
-node {skillRoot}/10-validator/resolve-color.js --dump-index \
+node {skillRoot}/scripts/resolve-color.js --dump-index \
   --output .temp/figma-from-code/color-index.json
 ```
 

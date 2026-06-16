@@ -14,7 +14,7 @@ Captures app screenshots and structured text content for every UI component befo
 - Playwright installed (`node_modules/playwright-core`)
 - Shared Playwright server optionally running (started by orchestrator before dispatching; scripts fall back to launching their own browser if absent):
   ```bash
-  node {skillRoot}/10-validator/browser-server.js &
+  node {skillRoot}/scripts/browser-server.js &
   ```
 
 > Placeholders like `{devServerUrl}` and `{skillRoot}` resolve from `state.json → config`.
@@ -142,21 +142,21 @@ Step 0 — Build manifests from component-map.json:
   Sort all manifests by url (entries without click first within each url) before writing.
 
 Scripts (already exist, do not modify):
-  Screenshot: node {skillRoot}/10-validator/screenshot.js
-  Text:       node {skillRoot}/10-validator/extract-text.js
+  Screenshot: node {skillRoot}/scripts/screenshot.js
+  Text:       node {skillRoot}/scripts/extract-text.js
 
 Both scripts support batch mode for faster execution (one browser, many captures):
 
 1. Capture all component screenshots (chunk if > 15 entries — run each chunk sequentially):
-   node {skillRoot}/10-validator/screenshot.js \
+   node {skillRoot}/scripts/screenshot.js \
      --batch .temp/figma-from-code/manifests/all-screenshots.json
 
 2. Extract all text content in one batch (includes both component and screen text entries):
-   node {skillRoot}/10-validator/extract-text.js \
+   node {skillRoot}/scripts/extract-text.js \
      --batch .temp/figma-from-code/manifests/all-text.json
 
 3. Capture all screen (full-page) screenshots — screens are few so one chunk suffices:
-   node {skillRoot}/10-validator/screenshot.js \
+   node {skillRoot}/scripts/screenshot.js \
      --batch .temp/figma-from-code/manifests/precapture-screens.json
 
 4. Write component results to .temp/figma-from-code/precapture-all.json:
@@ -227,9 +227,9 @@ Written to `.temp/figma-from-code/`:
 
 | Script              | Location                                       | Purpose                                                 |
 | ------------------- | ---------------------------------------------- | ------------------------------------------------------- |
-| `screenshot.js`     | `{skillRoot}/10-validator/screenshot.js`     | Playwright element/page screenshots, supports `--batch` |
-| `extract-text.js`   | `{skillRoot}/10-validator/extract-text.js`   | Structured text extraction by role, supports `--batch`  |
-| `browser-server.js` | `{skillRoot}/10-validator/browser-server.js` | Shared Playwright WebSocket server                      |
+| `screenshot.js`     | `{skillRoot}/scripts/screenshot.js`     | Playwright element/page screenshots, supports `--batch` |
+| `extract-text.js`   | `{skillRoot}/scripts/extract-text.js`   | Structured text extraction by role, supports `--batch`  |
+| `browser-server.js` | `{skillRoot}/scripts/browser-server.js` | Shared Playwright WebSocket server                      |
 
 Do NOT modify these scripts.
 

@@ -303,11 +303,13 @@ const {
 // Per-project config, mirroring the orchestrator's config block. Persisted into
 // state.json → config so sub-skill {placeholder} references resolve for every
 // subagent. On a mid-pipeline start, hydrated state.json config wins.
+// componentsRoot accepts a string (backward-compatible) or array of strings.
+const rawComponentsRoot = _a.componentsRoot || []
 const config = {
   devServerUrl: _a.devServerUrl || 'http://localhost:5173',
   devServerStart: _a.devServerStart || 'npm run dev',
   sourceDir: _a.sourceDir || 'src',
-  componentsRoot: _a.componentsRoot || 'src/components',
+  componentsRoot: Array.isArray(rawComponentsRoot) ? rawComponentsRoot : [rawComponentsRoot],
   pagesRoot: _a.pagesRoot || 'src/pages',
   cssPath: _a.cssPath || 'src/index.css',
   tailwindConfigPath: ('tailwindConfigPath' in _a) ? _a.tailwindConfigPath : 'tailwind.config.js',
@@ -575,7 +577,7 @@ if (shouldRunWave('wave1', startPhase, endPhase)) {
       'Run the component name normalization script, then persist the Phase 0a + 0b results to the state ledger and return the refreshed build order.',
       '',
       'Run this command:',
-      '  node ' + SKILL + '/1-discovery-components/normalize-component-map.js ' + TEMP + '/component-map.json ' + TEMP + '/icons.json --write',
+      '  node ' + SKILL + '/scripts/normalize-component-map.js ' + TEMP + '/component-map.json ' + TEMP + '/icons.json --write',
       '',
       'The script rewrites component-map.json in place with normalized names and regenerates ' + TEMP + '/discovery-summary.json from the normalized map.',
       'Read the regenerated discovery-summary.json and extract: buildOrder.tiers, builtComponents, preExistingComponents, preExistingScreens.',
@@ -708,7 +710,7 @@ if (shouldRunWave('wave3', startPhase, endPhase)) {
       '',
       'First verify the dev server responds at ' + config.devServerUrl + ' — if it does not, report success: false (do not start it yourself; the user runs `' + config.devServerStart + '`).',
       'Then start the shared Playwright server in the background before capturing:',
-      '  node ' + SKILL + '/10-validator/browser-server.js',
+      '  node ' + SKILL + '/scripts/browser-server.js',
       '(Scripts fall back to per-script browsers if it fails to start — non-fatal.)',
       '',
       'Build all manifests yourself from ' + TEMP + '/component-map.json (Step 0 of the skill).',
@@ -827,7 +829,7 @@ if (shouldRunWave('wave4', startPhase, endPhase)) {
         '  components: ' + tierDef.components.join(', '),
         '  componentsPageId: ' + (figmaNodes.componentsPageId || ''),
         '  devServerUrl: ' + config.devServerUrl,
-        '  componentsRoot: ' + config.componentsRoot,
+        '  componentsRoot: ' + JSON.stringify(config.componentsRoot),
         '',
         'Read builtComponents.json from ' + TEMP + '/ and skip components that already have a node ID.',
         'Create the tier frame on the Components page first (per the skill) and record its node ID.',
@@ -866,7 +868,7 @@ if (shouldRunWave('wave4', startPhase, endPhase)) {
         [
           'Finalize Tier ' + tierDef.tier + ' results.',
           '',
-          'Run: node ' + SKILL + '/collect-tier-results.js --tier ' + tierDef.tier + ' --components "' + tierDef.components.join(',') + '" --tier-frame-id "' + tierResult.tierFrameId + '"',
+          'Run: node ' + SKILL + '/scripts/collect-tier-results.js --tier ' + tierDef.tier + ' --components "' + tierDef.components.join(',') + '" --tier-frame-id "' + tierResult.tierFrameId + '"',
           'Read its one-line JSON stdout for the counts.',
           '',
           'Then read ' + TEMP + '/state.json, merge this into it, and write it back:',
@@ -959,7 +961,7 @@ if (shouldRunWave('wave5', startPhase, endPhase)) {
           'Finalize Phase 4 screen results.',
           '',
           'Run: mkdir -p ' + TEMP + '/build-results/screens',
-          'Run: node ' + SKILL + '/collect-screen-results.js --screens "' + screens.map(s => s.screenName).join(',') + '"',
+          'Run: node ' + SKILL + '/scripts/collect-screen-results.js --screens "' + screens.map(s => s.screenName).join(',') + '"',
           'This writes ' + TEMP + '/build-screens.json. Read its one-line JSON stdout for the counts.',
           '',
           'Then read ' + TEMP + '/state.json, merge this into it, and write it back:',

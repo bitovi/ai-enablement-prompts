@@ -6,7 +6,7 @@
 
 ## Required Inputs
 
-> Placeholders like `{componentsRoot}` resolve from `state.json → config`.
+> Placeholders like `{componentsRoot}` resolve from `state.json → config`. `{componentsRoot}` is an array of directory paths.
 
 | Input                   | Description                                                                                       | Source                                                   |
 | ----------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
@@ -48,7 +48,7 @@ Written to `.temp/figma-from-code/build-results/{componentName}-built.json` afte
   "variants": [{ "name": "Variant=primary, Size=regular", "nodeId": "123:46" }],
   "figmaScreenshot": ".temp/figma-from-code/screenshots/Button/figma.png",
   "figmaVariant": { "Variant": "primary", "State": "Default" },
-  "sourceDir": "{componentsRoot}/Button",
+  "sourceDir": "path/to/Button",  // derived from sourceFile path, not from componentsRoot
   "preExistingTouched": [],
   "missingChildren": [],
   "error": "only present when status is \"failed\""
@@ -118,13 +118,26 @@ Steps 1-3 (all inline):
 
 ## Workflow
 
-Each step has its own detailed file in the parent directory (`../`).
+Each step has a **condensed quick reference** (default) and a **full reference** (for complex cases). Start with the quick files. Only escalate to the full file when:
+- The component has responsive-breakpoint variants or prop-driven structural states
+- The build fails on the first iteration and you need edge-case guidance
+- The component is a page-level layout with parent-context promotion
 
-| Step | File                                               | Phase   | What it does                                                                                  |
-| ---- | -------------------------------------------------- | ------- | --------------------------------------------------------------------------------------------- |
-| 1    | [../step-1-analyze.md](../step-1-analyze.md)       | Analyze | Read source + reference material, inspect live component, write `.figma/code.json`            |
-| 2    | [../step-2-build.md](../step-2-build.md)           | Build   | Create the component in Figma via `use_figma`, enumerate instances, write `.figma/figma.json` |
-| 3    | [../step-3-screenshot.md](../step-3-screenshot.md) | Build   | Capture the Figma result via `get_screenshot`                                                 |
+### Default (quick references — use these first):
+
+| Step | File                                                     | Phase   | What it does                                                                                  |
+| ---- | -------------------------------------------------------- | ------- | --------------------------------------------------------------------------------------------- |
+| 1    | [../step-1-quick.md](../step-1-quick.md)                 | Analyze | Read source + reference material, inspect live component, write `.figma/code.json`            |
+| 2    | [../step-2-quick.md](../step-2-quick.md)                 | Build   | Create the component in Figma via `use_figma`, enumerate instances, write `.figma/figma.json` |
+| 3    | [../step-3-quick.md](../step-3-quick.md)                 | Build   | Capture the Figma result via `get_screenshot`                                                 |
+
+### Full references (escalate only when needed):
+
+| Step | File                                               | When to use                                                                     |
+| ---- | -------------------------------------------------- | ------------------------------------------------------------------------------- |
+| 1    | [../step-1-analyze.md](../step-1-analyze.md)       | Responsive variants, prop-state overlays, parent-context promotion, build fails |
+| 2    | [../step-2-build.md](../step-2-build.md)           | Responsive variants, prop-state builds, full Tailwind mapping table             |
+| 3    | [../step-3-screenshot.md](../step-3-screenshot.md) | Rarely needed — quick version covers all cases                                  |
 
 > Steps 4–7 (compare, fix loop, track, return) are handled by `../7b-review-fix-component/SKILL.md`.
 

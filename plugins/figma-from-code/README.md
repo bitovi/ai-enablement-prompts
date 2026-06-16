@@ -15,7 +15,7 @@ The pipeline runs eight tracked phases. An orchestrator skill dispatches each ph
 | 2.5 | Pre-capture | Screenshots every component and screen in the running app, and extracts their text content. These become the reference targets every Figma build is compared against. |
 | 3 | Component builds | Builds icon/asset masters first, then each tier of components in dependency order. Every component goes through analyze → build → screenshot → pixel-compare → fix loop (up to 3 iterations) until it visually matches the app. |
 | 4 | Screen assembly | Composes the built components into full screen frames, one per route, validated against full-page app screenshots. |
-| 5 | Validation | Inventories everything built, runs pixel-diff comparisons per tier, fixes mismatches, and writes a report to `.temp/figma-validation/report.md`. |
+| 5 | Validation | Compares assembled screen frames against full-page app screenshots, fixes mismatched screens (up to 2 iterations), cleans up the Components page, and writes a report to `.temp/figma-validation/report.md`. Individual components are not re-validated — they already passed during Phase 3. |
 
 Alongside the Figma output, every built component gets a `.figma/figma.json` tracking file next to its source code (node ID, dependencies, last update), enabling future syncs and incremental rebuilds.
 
@@ -60,7 +60,7 @@ For unattended runs, the plugin ships a workflow (`workflows/figma-from-code.js`
 
 > Run the figma-from-code workflow with fileKey `<fileKey>`
 
-Args: `fileKey` (required), `startPhase`/`endPhase` (`phase0a`…`phase5`) to bound the run, plus any config overrides (`devServerUrl`, `sourceDir`, `componentsRoot`, `pagesRoot`, `cssPath`, `tailwindConfigPath`, `iconLibrary`, `skillRoot`). Batch mode does no config detection — pass overrides explicitly on a fresh run; a mid-pipeline start (`startPhase` past `phase0a`) hydrates config and progress from `state.json`, so a paused skill-orchestrator run can be continued as a batch run and vice versa.
+Args: `fileKey` (required), `startPhase`/`endPhase` (`phase0a`…`phase5`) to bound the run, plus any config overrides (`devServerUrl`, `sourceDir`, `componentsRoot` (string or array), `pagesRoot`, `cssPath`, `tailwindConfigPath`, `iconLibrary`, `skillRoot`). Batch mode does no config detection — pass overrides explicitly on a fresh run; a mid-pipeline start (`startPhase` past `phase0a`) hydrates config and progress from `state.json`, so a paused skill-orchestrator run can be continued as a batch run and vice versa.
 
 ## Resuming a run
 
@@ -75,7 +75,7 @@ The orchestrator reads `.temp/figma-from-code/progress.md` and `state.json`, ver
 - The Figma file: variable collections, Foundations docs, the tiered component library, and assembled screens
 - `.temp/figma-from-code/` — state ledger, build order, per-component build results, app/Figma screenshots
 - `.temp/figma-validation/report.md` — final validation report with per-component match percentages
-- `{componentsRoot}/{Component}/.figma/figma.json` — persistent tracking files linking source code to Figma nodes
+- `{componentsRoot[]}/{Component}/.figma/figma.json` — persistent tracking files linking source code to Figma nodes (path derived from each component's source location; `componentsRoot` is an array supporting monorepos with multiple component directories)
 
 ## Development
 

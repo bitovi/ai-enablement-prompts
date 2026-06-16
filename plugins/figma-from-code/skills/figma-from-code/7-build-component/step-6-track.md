@@ -19,13 +19,13 @@ If any invariant fails, return the discrepancy in the result file. Do not try to
 
 ## Folder resolution (shared by Step 1 and 2f)
 
-> Placeholders like `{componentsRoot}` resolve from `state.json → config`.
+> Placeholders like `{componentsRoot}` resolve from `state.json → config`. `{componentsRoot}` is an array of directory paths.
 
-Both writers use the same path rules; they are documented here for reference.
+Both writers use the same path rules; they are documented here for reference. Derive the `.figma/` directory from each component's `sourceFile` path rather than a single `componentsRoot` prefix:
 
-- `Button` → `{componentsRoot}/Button/.figma/`
-- Nested modlet (e.g. `CustomerInformation` under `CustomerDetails/components/...`) → `{componentsRoot}/CustomerDetails/components/CustomerInformation/.figma/`
-- `Icon/{Name}` → `{componentsRoot}/Icon/{Name}/.figma/` (synthesized — Lucide icons have no local source file)
-- `Asset/{Name}` → `{componentsRoot}/Asset/{Name}/.figma/` (synthesized)
+- `Button` with `sourceFile` at `src/components/Button/Button.tsx` → `src/components/Button/.figma/`
+- Nested modlet (e.g. `CustomerInformation` under `CustomerDetails/components/...`) → `path.dirname(sourceFile)/.figma/`
+- `Icon/{Name}` → `{componentsRoot[0]}/Icon/{Name}/.figma/` (synthesized — Lucide icons have no local source file; use the first `componentsRoot` entry)
+- `Asset/{Name}` → `{componentsRoot[0]}/Asset/{Name}/.figma/` (synthesized)
 
 If a legacy `<sourceDir>/figma.json` (root-level, pre-`.figma/` layout) exists, Step 2f should read it to recover `createdAt`, then ignore it on subsequent runs. Do not delete it from Step 6.

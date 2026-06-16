@@ -20,7 +20,7 @@ This skill can be used two ways:
 - Figma MCP must be connected and authenticated
 - Dev server must be running at `{devServerUrl}` — use the URL from `state.json → config.devServerUrl` (default `http://localhost:5173`)
 - `.temp/figma-from-code/state.json` must exist (produced by `figma-from-code`)
-- `compare.js` for pixel diff is vendored at `{skillRoot}/10-validator/compare.js`
+- `compare.js` for pixel diff is vendored at `{skillRoot}/scripts/compare.js`
 
 ## Workflow
 
@@ -162,7 +162,7 @@ The Component App Map assigns each Figma component a URL, Playwright CSS selecto
 
 **This map is built dynamically during Phase 1c** from the `component-map.json` output (Phase 0a). It is NOT hardcoded.
 
-The screenshot script is: `{skillRoot}/10-validator/screenshot.js`
+The screenshot script is: `{skillRoot}/scripts/screenshot.js`
 
 Usage:
 
@@ -273,7 +273,7 @@ ls .temp/figma-from-code/screenshots/{ComponentName}/text.json 2>/dev/null && ec
 Run the screenshot script with `--selector`:
 
 ```bash
-node {skillRoot}/10-validator/screenshot.js \
+node {skillRoot}/scripts/screenshot.js \
   "{devServerUrl}{url}" \
   ".temp/figma-validation/screenshots/{ComponentName}/app.png" \
   --selector "{selector}" \
@@ -283,7 +283,7 @@ node {skillRoot}/10-validator/screenshot.js \
 If the component requires a click first, use `--click`:
 
 ```bash
-node {skillRoot}/10-validator/screenshot.js \
+node {skillRoot}/scripts/screenshot.js \
   "{devServerUrl}{url}" \
   ".temp/figma-validation/screenshots/{ComponentName}/app.png" \
   --selector "{screenshot-selector}" \
@@ -298,7 +298,7 @@ If `text.json` was not produced during the rebuild, run the extractor now and up
 **Extract:**
 
 ```bash
-node {skillRoot}/10-validator/extract-text.js \
+node {skillRoot}/scripts/extract-text.js \
   "{devServerUrl}{url}" \
   --selector "{selector}" \
   [--click "{click-selector}"] \
@@ -390,7 +390,7 @@ curl -sL "{image_url}" -o ".temp/figma-validation/screenshots/{ComponentName}/fi
 After both screenshots are saved, run the comparison script:
 
 ```bash
-node {skillRoot}/10-validator/compare.js \
+node {skillRoot}/scripts/compare.js \
   ".temp/figma-validation/screenshots/{ComponentName}/app.png" \
   ".temp/figma-validation/screenshots/{ComponentName}/figma.png" \
   ".temp/figma-validation/screenshots/{ComponentName}/"

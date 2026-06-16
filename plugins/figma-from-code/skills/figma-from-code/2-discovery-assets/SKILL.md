@@ -73,7 +73,7 @@ mkdir -p .temp/figma-from-code/
 ### 2. Run the icon extraction script
 
 ```bash
-node {skillRoot}/10-validator/extract-icons.js \
+node {skillRoot}/scripts/extract-icons.js \
   --scan {sourceDir} \
   --output .temp/figma-from-code/icons.json
 ```
@@ -128,7 +128,7 @@ Icon & Asset Discovery complete:
 
 | Script             | Location                                          | Purpose                                                              |
 | ------------------ | ------------------------------------------------- | -------------------------------------------------------------------- |
-| `extract-icons.js` | `{skillRoot}/10-validator/extract-icons.js` | Static analysis of imports to find icons/assets and extract SVG data |
+| `extract-icons.js` | `{skillRoot}/scripts/extract-icons.js` | Static analysis of imports to find icons/assets and extract SVG data |
 
 Do NOT modify this script.
 

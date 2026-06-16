@@ -527,7 +527,7 @@ When source code references Tailwind semantic colors (e.g., `bg-primary`, `text-
 **Never hardcode a color value without first checking it against the variable index.** This applies to EVERY literal color from EVERY source — Tailwind fallback resolution, `stateStyles` computed values, `computed-styles.json`, arbitrary values like `bg-[#1e293b]`, and fix-loop corrections. Before inlining a raw `{ r, g, b }` into a `use_figma` script, run:
 
 ```bash
-node {skillRoot}/10-validator/resolve-color.js '<class | var | #hex | rgb()>' --context fill|stroke|text
+node {skillRoot}/scripts/resolve-color.js '<class | var | #hex | rgb()>' --context fill|stroke|text
 ```
 
 - `match: "exact"` or `"tolerance"` → bind the returned `variable.id` via `setBoundVariable` (see Step 2 below). Use `--context` to disambiguate when multiple tokens share a value (`fill` for backgrounds, `text` for text fills, `stroke` for borders).
@@ -705,7 +705,7 @@ return JSON.stringify(
 For each `{ componentName, nodeId }` returned, build the dependency entry:
 
 1. `url` — `https://figma.com/design/{fileKey}?node-id={nodeId.replace(':', '-')}`.
-2. `dependencies` — read from the child's own `.figma/figma.json` (e.g. `{componentsRoot}/EditableTitle/.figma/figma.json`). If missing or unparseable, use `[]`. Components are built bottom-up, so child tracking files will already exist.
+2. `dependencies` — read from the child's own `.figma/figma.json` (resolve path from the child's `sourcePath` in `component-map.json`, falling back to `{componentsRoot[0]}/{childName}/.figma/figma.json` for synthetic components). If missing or unparseable, use `[]`. Components are built bottom-up, so child tracking files will already exist.
 
 **Schema (the file you write):**
 
@@ -737,12 +737,12 @@ For each `{ componentName, nodeId }` returned, build the dependency entry:
 
 `dependencies` is **always recomputed from the live enumeration** — never carried over from a prior run. The whole point of this file is to mirror current Figma state.
 
-**Folder resolution** (same rules as Step 1 — see schema reference at top of step-1-analyze.md):
+**Folder resolution** (same rules as Step 1 — see schema reference at top of step-1-analyze.md). Derive the path from the component's `sourceFile` rather than a single `componentsRoot` prefix:
 
-- `Button` → `{componentsRoot}/Button/.figma/figma.json`
-- Nested modlets follow the source path.
-- `Icon/{Name}` → `{componentsRoot}/Icon/{Name}/.figma/figma.json` (synthesized).
-- `Asset/{Name}` → `{componentsRoot}/Asset/{Name}/.figma/figma.json` (synthesized).
+- `Button` with `sourceFile` at `src/components/Button/Button.tsx` → `src/components/Button/.figma/figma.json`
+- Nested modlets follow the source path: `path.dirname(sourceFile)/.figma/figma.json`.
+- `Icon/{Name}` → `{componentsRoot[0]}/Icon/{Name}/.figma/figma.json` (synthesized; use first `componentsRoot` entry).
+- `Asset/{Name}` → `{componentsRoot[0]}/Asset/{Name}/.figma/figma.json` (synthesized).
 
 **Failure handling:** if the write fails, log the error and surface it in the Step 7 result under `trackingFile`. The Step 4a gate will then fail (missing `figma.json`), making the failure unambiguous.
 

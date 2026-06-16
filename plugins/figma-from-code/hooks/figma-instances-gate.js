@@ -38,7 +38,7 @@ const checkInstancesScript = path.join(
   '..',
   'skills',
   'figma-from-code',
-  '7-build-component',
+  'scripts',
   'check-instances.js'
 );
 

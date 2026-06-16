@@ -13,7 +13,7 @@
 4. **Gate hooks:** fix and ship both via the plugin's `hooks/hooks.json` (auto-registered) — apply §1.1 and §1.5 fixes first.
 5. **Bundling:** fold everything in — merge `figma-setup-variables`/`figma-setup-file-structure` into the 3-/4- phase dirs (§3.3), vendor `compare.js` + one canonical `browser-connect.js` into `10-validator/`. Zero external skill dependencies.
 6. **npm deps:** document `@playwright/test` + chromium as host-project prerequisites for now (`${CLAUDE_PLUGIN_DATA}` install option later).
-7. **Tracking files:** keep writing `.figma/figma.json` into the host source tree, root configurable via `componentsRoot`, documented as consumer-visible behavior.
+7. **Tracking files:** keep writing `.figma/figma.json` into the host source tree, path derived from each component's `sourcePath` (with `componentsRoot` array as fallback for synthetic components), documented as consumer-visible behavior.
 8. **Per-project config:** orchestrator prompts for unknowns on first run and persists them to `state.json`; checked-in config-file override later.
 9. **Sequencing:** plugin skeleton + `git mv` first → §1 correctness fixes → §3 deletions → §2/§5 parameterization → §3.3/§3.7 consolidation → §4 efficiency. Acceptance test: clean pipeline run against this app after the §1 fixes, before the efficiency work.
 
@@ -34,7 +34,7 @@ Severity scale: 🔴 blocker (breaks a run or breaks extraction) · 🟠 high ·
 - §1.9 interactive confirmation removed from Phase 0a; orchestrator surfaces componentDirectories at Wave 1→2 pause
 - §1.10 minors: Phase 5 inputs, Phase 1 skip condition, browser-server start step, icon-preamble direct dispatch, wave-boundary consistency, `builtScreens` + `screenBodySize` in state schema, `missingDetails` phantom removed
 - §3 deletions: legacy `figma-from-code-build-component/` skill, `figma-component-dependency-map/` skill, `7-build-component/prompts/`, 8 dead debug scripts, 3 meta-docs (skill-tree/skill-graph/evaluation-report); all stale cross-references fixed (site-component-map paths, 8-build-screens section pointers, CLAUDE.md rows)
-- §2.1/§5 parameterization: `config` object in state.json (devServerUrl, devServerStart, sourceDir, componentsRoot, pagesRoot, cssPath, tailwindConfigPath, iconLibrary, skillRoot) with first-run detection + user confirmation; all literals replaced with `{placeholder}` convention across every phase file
+- §2.1/§5 parameterization: `config` object in state.json (devServerUrl, devServerStart, sourceDir, componentsRoot (array), pagesRoot, cssPath, tailwindConfigPath, iconLibrary, skillRoot) with first-run detection + user confirmation; all literals replaced with `{placeholder}` convention across every phase file
 - §2.2 script fixes: `extract-icons.js` project-root walk-up + `--project-root` flag; `normalize-component-map.js` uses `require.resolve('lucide-react')` with graceful degradation — both live-tested against this repo
 
 - §3.3/§3.7 consolidation (Decision 5): `figma-setup-variables`/`figma-setup-file-structure` folded into the 3-/4- phase dirs (top-level skills reduced to pointers; CLAUDE.md updated); `compare.js` vendored into `10-validator/` (all references now `{skillRoot}/10-validator/compare.js`); `fixSizing()` + Tailwind→Figma table single-sourced in `7-build-component/figma-utils.md` (exemptRoot variant canonical; step-2-build, 8-build-screens, 7a all point there)
@@ -256,7 +256,7 @@ Single block in the orchestrator's Required Inputs, persisted to `state.json` so
   "devServerUrl": "http://localhost:5173",   // §2.1 — all localhost references
   "devServerStart": "npm run dev",           // optional; step-1 auto-start + precapture prereq
   "sourceDir": "src/",                       // Phase 0b dispatch, asset scan, extract-icons root
-  "componentsRoot": "src/components",        // all .figma/ tracking paths + Icon//Asset/ synth roots
+  "componentsRoot": ["src/components"],   // array of component dirs (supports monorepos); .figma/ paths derived from sourcePath
   "pagesRoot": "src/pages",                  // figma-screen.json paths
   "cssPath": "src/index.css",                // 3-setup-tokens resolve-colors command
   "tailwindConfigPath": "tailwind.config.js",// optional (null = Tailwind v4 / vanilla CSS)

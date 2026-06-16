@@ -2,7 +2,7 @@
 
 Validates the output of figma-from-code by screenshotting each component in its live app context and comparing it against the matching Figma variant. Produces a structured report with side-by-side screenshots and match percentages.
 
-This is a utility skill, not a pipeline phase. Phase 5 (`9-validate/`) invokes it to perform the actual validation work. It can also be used standalone to audit whether Figma components match their React implementations.
+This is a standalone utility skill, not a pipeline phase. It can be invoked independently to audit whether individual Figma components match their React implementations. Phase 5 no longer uses this for per-component validation — it now validates only at the full-page screen level.
 
 ## What It Does
 
@@ -46,7 +46,7 @@ Writes `.temp/figma-validation/report.md` containing:
 - Per-component comparison table with match percentages
 - Side-by-side screenshot grids
 
-When invoked by the Phase 5 orchestrator, a **fix loop** runs up to 3 iterations for mismatched components built during the current run — identifying visual defects, applying fixes in Figma, re-screenshotting, and updating the report.
+When invoked standalone, an optional **fix loop** can run up to 3 iterations for mismatched components — identifying visual defects, applying fixes in Figma, re-screenshotting, and updating the report.
 
 ## Thresholds
 

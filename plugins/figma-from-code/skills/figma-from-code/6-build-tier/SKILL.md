@@ -10,7 +10,7 @@ Builds all Figma components using pre-captured reference material, reusing lower
 
 ## Prerequisites
 
-> Placeholders like `{skillRoot}` and `{componentsRoot}` resolve from `state.json → config`.
+> Placeholders like `{skillRoot}` and `{componentsRoot}` resolve from `state.json → config`. `{componentsRoot}` is an array of directory paths — when writing `.figma/` tracking files, derive the path from each component's `sourcePath` (in `component-map.json`) rather than assuming a single root prefix. For synthetic components (icons, assets) without a source file, use the first entry in the array.
 
 - Phases 0–2.5 complete (build order, icons, tokens, file structure, screenshots all in place)
 - `.temp/figma-from-code/state.json` populated with `buildOrder`, `figmaNodes`, `iconDiscovery`

@@ -60,7 +60,7 @@ Produce a comma-separated route list of concrete, parameterless paths (e.g. `/,/
 ### 3b. Run the passive component discovery script
 
 ```bash
-node {skillRoot}/10-validator/map-components.js \
+node {skillRoot}/scripts/map-components.js \
   "{devServerUrl}" --routes {enumerated_routes} --crawl --max-crawl 30 \
   --markdown .temp/figma-from-code/component-map.md \
   --output .temp/figma-from-code/component-map.json
@@ -105,7 +105,7 @@ After the passive pass, read `component-map.json` and list components with `capt
 ### 3d. Run the interaction pass
 
 ```bash
-node {skillRoot}/10-validator/map-components.js \
+node {skillRoot}/scripts/map-components.js \
   "{devServerUrl}" \
   --augment .temp/figma-from-code/component-map.json \
   --interactions .temp/figma-from-code/interactions.json \
@@ -122,7 +122,7 @@ node {skillRoot}/10-validator/map-components.js \
 For scenarios that did not reveal their expected components, refine the step selectors and re-run 3d (max 2 refinement iterations). Debug a single scenario interactively with:
 
 ```bash
-node {skillRoot}/10-validator/discover-components.js "{devServerUrl}{route}" --click "{trigger}" --list
+node {skillRoot}/scripts/discover-components.js "{devServerUrl}{route}" --click "{trigger}" --list
 ```
 
 Components still without `capture` after refinement are genuinely non-renderable from the live app (loading/error states, hover-only primitives) — record each with its reason for the final report.
@@ -137,7 +137,7 @@ The DOM scanner extracts React component names from the fiber tree, which may di
 Run the normalization script to align names with Figma conventions. This requires `icons.json` from Phase 0b.
 
 ```bash
-node {skillRoot}/1-discovery-components/normalize-component-map.js \
+node {skillRoot}/scripts/normalize-component-map.js \
   .temp/figma-from-code/component-map.json \
   .temp/figma-from-code/icons.json \
   --write
@@ -156,7 +156,7 @@ The script resolves names via three strategies:
 Run the code scanner in discovery mode to locate component directories:
 
 ```bash
-node {skillRoot}/1-discovery-components/discover-code-components.js \
+node {skillRoot}/scripts/discover-code-components.js \
   --discover --root .
 ```
 
@@ -168,12 +168,22 @@ Read the JSON output and automatically apply the following default exclusions (d
 
 For each excluded directory, record the directory path and the exclusion reason. Include the final `componentDirectories` list and the list of any excluded directories with their reasons in the discovery summary returned to the orchestrator. The orchestrator will surface these to the user at the next user-facing checkpoint so they can request adjustments if needed.
 
+After running `--discover` and applying exclusions, write both `componentDirectories` and `excludedDirectories` into `component-map.json` as top-level fields so they are preserved through the `--scan` merge in Step 6 and available to the summary script in Step 10:
+
+```javascript
+// Merge into component-map.json after --scan completes
+const map = JSON.parse(fs.readFileSync('.temp/figma-from-code/component-map.json', 'utf-8'));
+map.componentDirectories = componentDirectories; // [{ path, componentCount, subdirs }]
+map.excludedDirectories = excludedDirectories;   // [{ path, reason }]
+fs.writeFileSync('.temp/figma-from-code/component-map.json', JSON.stringify(map, null, 2));
+```
+
 ### 6. Scan code for all components
 
 Run the code scanner in scan mode with the confirmed directories:
 
 ```bash
-node {skillRoot}/1-discovery-components/discover-code-components.js \
+node {skillRoot}/scripts/discover-code-components.js \
   --scan {confirmed_dir_1} {confirmed_dir_2} \
   --browser-map .temp/figma-from-code/component-map.json \
   --output .temp/figma-from-code/component-map.json \
@@ -215,7 +225,12 @@ Also use `use_figma` to do a read-only inspection for file-level state:
 
 ### 8b. Ensure .figma/figma.json exists for every matched component
 
-For each Figma component returned by `get_metadata` (regardless of whether it appears in the runtime `component-map.json`), ensure a tracking record exists at `{componentsRoot}/{ComponentName}/.figma/figma.json`. Same schema and same folder-resolution rules as Step 6 of `plugins/figma-from-code/skills/figma-from-code/7-build-component/SKILL.md`:
+For each Figma component returned by `get_metadata` (regardless of whether it appears in the runtime `component-map.json`), ensure a tracking record exists next to its source file. The tracking file path is resolved as follows:
+
+1. **Component has a `sourcePath` in `component-map.json`:** write to `path.dirname(sourcePath)/.figma/figma.json`
+2. **Component has no `sourcePath` (browser-only or synthetic):** search each directory in `config.componentsRoot` (an array) for a matching component folder. Use namespace-aware path rules — `Icon/Bot` → `{componentsRoot[i]}/Icon/Bot/.figma/figma.json`. Try each `componentsRoot` entry in order; use the first match. If no match is found, use the first `componentsRoot` entry as the default.
+
+Same schema as Step 6 of `plugins/figma-from-code/skills/figma-from-code/7-build-component/SKILL.md`:
 
 ```json
 {
@@ -231,7 +246,7 @@ For each Figma component returned by `get_metadata` (regardless of whether it ap
 
 **Behavior:**
 
-- **File missing:** create it. Set `createdAt` and `updatedAt` to the current ISO 8601 UTC timestamp. Create the `.figma/` folder first if it does not exist (use the namespace-aware path rules — `Icon/Bot` → `{componentsRoot}/Icon/Bot/.figma/figma.json`).
+- **File missing:** create it. Set `createdAt` and `updatedAt` to the current ISO 8601 UTC timestamp. Create the `.figma/` folder first if it does not exist.
 - **File present:** do not modify it. This phase only seeds tracking files for components that lack one — refreshing `updatedAt` is `plugins/figma-from-code/skills/figma-from-code/7-build-component/SKILL.md`'s job.
 
 Skip COMPONENT children of COMPONENT_SET nodes (variants) — only write tracking files for the top-level component or component set.
@@ -289,12 +304,18 @@ node -e "
     }
   }
   const componentCount = map.tiers.reduce((sum, t) => sum + t.components.length, 0);
+  // Read componentDirectories and excludedDirectories from the --discover output
+  // These are written by Step 5 and preserved in component-map.json
+  const componentDirectories = map.componentDirectories || [];
+  const excludedDirectories = map.excludedDirectories || [];
   const summary = {
     buildOrder: { tierCount: tiers.length, tiers },
     builtComponents,
     preExistingComponents,
     preExistingScreens: (map.figma && map.figma.preExistingScreens) || {},
     componentCount,
+    componentDirectories,
+    excludedDirectories,
     sourceBreakdown: { both: bothCount, codeOnly: codeOnlyCount, browserOnly: browserOnlyCount },
     figma: map.figma || null
   };
@@ -303,7 +324,7 @@ node -e "
 "
 ```
 
-Write to `.temp/figma-from-code/discovery-summary.json`. The orchestrator reads only this file (~3KB) instead of the full component-map.json.
+Write to `.temp/figma-from-code/discovery-summary.json`. The orchestrator reads only this file (~3KB) instead of the full component-map.json. The `componentDirectories` and `excludedDirectories` fields are surfaced to the user at the Wave 1 pause for confirmation (see orchestrator § "Wave 1 Pause: Component Directory Confirmation").
 
 ### 11. Report
 
@@ -331,9 +352,9 @@ Figma file state:
 
 | Script                        | Location                                                    | Purpose                                                                                                                                                                            |
 | ----------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `map-components.js`           | `{skillRoot}/10-validator/map-components.js`                | Crawls routes, detects framework, discovers components, computes build order. `--interactions` runs scenarios from interactions.json; `--augment` seeds from a previous output and skips the passive crawl |
-| `normalize-component-map.js`  | `{skillRoot}/1-discovery-components/normalize-component-map.js`  | Aligns scanner names with Figma conventions using icons.json + Lucide alias table                                                                                                  |
-| `discover-code-components.js` | `{skillRoot}/1-discovery-components/discover-code-components.js` | Auto-discovers frontend packages and scans source for all components. `--discover` mode finds directories; `--scan` mode parses imports, merges with browser map (preserving `capture`), recomputes tiers |
+| `map-components.js`           | `{skillRoot}/scripts/map-components.js`                | Crawls routes, detects framework, discovers components, computes build order. `--interactions` runs scenarios from interactions.json; `--augment` seeds from a previous output and skips the passive crawl |
+| `normalize-component-map.js`  | `{skillRoot}/scripts/normalize-component-map.js`  | Aligns scanner names with Figma conventions using icons.json + Lucide alias table                                                                                                  |
+| `discover-code-components.js` | `{skillRoot}/scripts/discover-code-components.js` | Auto-discovers frontend packages and scans source for all components. `--discover` mode finds directories; `--scan` mode parses imports, merges with browser map (preserving `capture`), recomputes tiers |
 
 Do NOT modify `map-components.js` — drive it via its flags (`--routes`, `--interactions`, `--augment`); app-specific knowledge belongs in `interactions.json`, never in the script.
 

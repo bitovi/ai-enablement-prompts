@@ -16,7 +16,7 @@ The gate consumes the two `.figma/*.json` tracking files written earlier:
 > Placeholders like `{skillRoot}` resolve from `state.json → config`.
 
 ```bash
-node {skillRoot}/7-build-component/check-instances.js \
+node {skillRoot}/scripts/check-instances.js \
   <componentName> \
   <sourceDir>
 ```
@@ -124,7 +124,7 @@ Both sides of the comparison must use 1x scale to avoid dimension mismatches:
 Run the pixel diff comparison:
 
 ```bash
-node {skillRoot}/10-validator/compare.js \
+node {skillRoot}/scripts/compare.js \
   "{screenshotDir}/app.png" \
   "{screenshotDir}/figma.png" \
   "{screenshotDir}/"

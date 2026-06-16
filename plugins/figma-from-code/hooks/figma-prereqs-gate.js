@@ -37,7 +37,7 @@ const checkPrereqsScript = path.join(
   '..',
   'skills',
   'figma-from-code',
-  '7-build-component',
+  'scripts',
   'check-prereqs.js'
 );
 

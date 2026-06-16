@@ -9,19 +9,31 @@ This folder contains two sub-skills that together execute the full per-component
 
 ## Step Files (shared library)
 
-All step instruction files live directly in this folder and are referenced by both sub-skills:
+All step instruction files live directly in this folder. Each step has a **quick reference** (condensed, ~100 lines) and a **full reference** (exhaustive, ~600 lines). Sub-skills default to the quick versions and only escalate to full references when dealing with complex components or failed builds.
 
-| File                                         | Step     | Phase    |
-| -------------------------------------------- | -------- | -------- |
-| [step-1-analyze.md](step-1-analyze.md)       | 1        | Analyze  |
-| [step-2-build.md](step-2-build.md)           | 2        | Build    |
-| [step-3-screenshot.md](step-3-screenshot.md) | 3        | Build    |
-| [step-4-compare.md](step-4-compare.md)       | 4a/4b/4c | Compare  |
-| [step-5-fix-loop.md](step-5-fix-loop.md)     | 5        | Fix      |
-| [step-6-track.md](step-6-track.md)           | 6        | Finalize |
-| [step-7-return.md](step-7-return.md)         | 7        | Finalize |
+### Quick references (default — use these first):
 
-Scripts: [`check-instances.js`](check-instances.js), [`check-prereqs.js`](check-prereqs.js)
+| File                                         | Steps    | Lines | Covers                                           |
+| -------------------------------------------- | -------- | ----- | ------------------------------------------------ |
+| [step-1-quick.md](step-1-quick.md)           | 1        | ~90   | Analysis sequence, sizing rules, output schema   |
+| [step-2-quick.md](step-2-quick.md)           | 2        | ~110  | Build pattern, fixSizing, variable binding, 2f   |
+| [step-3-quick.md](step-3-quick.md)           | 3        | ~35   | Screenshot capture (all cases)                   |
+| [step-4-quick.md](step-4-quick.md)           | 4a/4b/4c | ~60   | Instance gate, sizing check, pixel diff          |
+| [step-5-quick.md](step-5-quick.md)           | 5/6/7    | ~95   | Fix loop, rebind sweep, track, return            |
+
+### Full references (escalate when needed):
+
+| File                                         | Step     | When to escalate                                          |
+| -------------------------------------------- | -------- | --------------------------------------------------------- |
+| [step-1-analyze.md](step-1-analyze.md)       | 1        | Responsive variants, prop-state overlays, promotion rules |
+| [step-2-build.md](step-2-build.md)           | 2        | Responsive builds, full Tailwind table, color chain       |
+| [step-3-screenshot.md](step-3-screenshot.md) | 3        | Rarely needed                                             |
+| [step-4-compare.md](step-4-compare.md)       | 4a/4b/4c | Detailed rejection handling, sizing edge cases            |
+| [step-5-fix-loop.md](step-5-fix-loop.md)     | 5        | Full discrepancy table, rebind sweep internals            |
+| [step-6-track.md](step-6-track.md)           | 6        | Folder resolution rules, legacy file migration            |
+| [step-7-return.md](step-7-return.md)         | 7        | Canonical result schema details                           |
+
+Scripts: [`check-instances.js`](../scripts/check-instances.js), [`check-prereqs.js`](../scripts/check-prereqs.js)
 
 ## Usage
 

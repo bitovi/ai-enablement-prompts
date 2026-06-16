@@ -235,7 +235,7 @@ Before building, inspect the actual rendered page in the browser to capture comp
 Run `inspect-styles.js` against the page root selector on the dev server:
 
 ```bash
-node {skillRoot}/10-validator/inspect-styles.js \
+node {skillRoot}/scripts/inspect-styles.js \
   "{devServerUrl}/{route}" \
   --selector "[data-page='{ScreenName}'], main, #root > div" \
   --output ".temp/figma-from-code/screenshots/screens/{ScreenName}/"
@@ -249,7 +249,7 @@ This produces:
 
 **How to use the outputs:**
 
-Use exact `padding` and `gap` values to set Figma properties — these are the authoritative values for the page chrome. For **colors**, the computed RGB values are authoritative for *what* the color is, but not for *how* to apply it: reverse-match each one against the variable index first (`node {skillRoot}/10-validator/resolve-color.js 'rgb(...)' --context fill`) and bind the matched variable (see §2e). Hardcode the RGB only when the match is `"none"`.
+Use exact `padding` and `gap` values to set Figma properties — these are the authoritative values for the page chrome. For **colors**, the computed RGB values are authoritative for *what* the color is, but not for *how* to apply it: reverse-match each one against the variable index first (`node {skillRoot}/scripts/resolve-color.js 'rgb(...)' --context fill`) and bind the matched variable (see §2e). Hardcode the RGB only when the match is `"none"`.
 
 **Dev server is required — don't silently skip this step.**
 
@@ -343,9 +343,9 @@ When the page root uses semantic colors (`bg-background`, `bg-muted`), resolve a
 
 1. Resolve the class or the computed RGB from `computed-styles.json` (Step 1f) via the lookup CLI:
    ```bash
-   node {skillRoot}/10-validator/resolve-color.js 'bg-background' --context fill
+   node {skillRoot}/scripts/resolve-color.js 'bg-background' --context fill
    # or, from computed styles:
-   node {skillRoot}/10-validator/resolve-color.js 'rgb(255, 255, 255)' --context fill
+   node {skillRoot}/scripts/resolve-color.js 'rgb(255, 255, 255)' --context fill
    ```
 2. On `match: "exact"` or `"tolerance"`, set the fill then bind: `screen.setBoundVariable('fills', 0, await figma.variables.getVariableByIdAsync('{id}'))`.
 3. Only on `match: "none"`, hardcode the RGB from `computed-styles.json`.
@@ -444,7 +444,7 @@ Record the sizing check result in the eventual result file:
 Run the pixel diff comparison:
 
 ```bash
-node {skillRoot}/10-validator/compare.js \
+node {skillRoot}/scripts/compare.js \
   "{screenshotDir}/app.png" \
   "{screenshotDir}/figma.png" \
   "{screenshotDir}/"
@@ -524,7 +524,7 @@ get_screenshot(fileKey, screenFrameId)
 Save to `{screenshotDir}/figma.png` (overwrite previous).
 
 ```bash
-node {skillRoot}/10-validator/compare.js \
+node {skillRoot}/scripts/compare.js \
   "{screenshotDir}/app.png" \
   "{screenshotDir}/figma.png" \
   "{screenshotDir}/"

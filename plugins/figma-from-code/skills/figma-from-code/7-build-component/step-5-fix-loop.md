@@ -51,7 +51,7 @@ Write a targeted fix — change only the properties identified in diagnosis.
 **Color fixes must go through the variable index first** (step-2-build.md §2e Step 0). Before authoring the fix script, resolve the intended color:
 
 ```bash
-node {skillRoot}/10-validator/resolve-color.js '#2563eb' --context fill
+node {skillRoot}/scripts/resolve-color.js '#2563eb' --context fill
 ```
 
 If it returns a variable, bind it; hardcode RGB only on `match: "none"`. Reassigning `fills`/`strokes` **clears any existing variable binding** on that paint — a raw-RGB color fix on a previously-bound node silently downgrades it to a hardcoded color, which is the main way components lose their token coupling.
@@ -77,7 +77,7 @@ The Figma node tree has changed, so the `.figma/figma.json` written by Step 2f i
 2. **Re-run the Step 4a gate** if the previous iteration's failure was `missing_instances`:
    > Placeholders like `{skillRoot}` resolve from `state.json → config`.
    ```bash
-   node {skillRoot}/7-build-component/check-instances.js <componentName> <sourceDir>
+   node {skillRoot}/scripts/check-instances.js <componentName> <sourceDir>
    ```
    If it still rejects, diagnose the next missing entry and loop back to 5b. Do not proceed to pixel re-compare until 4a passes.
 3. **Re-screenshot** — only after Step 4a passes:
@@ -87,7 +87,7 @@ The Figma node tree has changed, so the `.figma/figma.json` written by Step 2f i
    Save to `{screenshotDir}/figma.png` (overwrite previous).
 4. **Re-compare pixels:**
    ```bash
-   node {skillRoot}/10-validator/compare.js \
+   node {skillRoot}/scripts/compare.js \
      "{screenshotDir}/app.png" \
      "{screenshotDir}/figma.png" \
      "{screenshotDir}/"
@@ -105,7 +105,7 @@ Run this sweep **after** the fix loop exits — and also when the fix loop never
 
 The sweep is purely structural — it changes which variables paints are *bound* to, never the rendered pixels (it only binds variables whose resolved color already equals the paint's color). No re-screenshot or re-compare is needed afterward.
 
-1. Read `.temp/figma-from-code/color-index.json` (written by Phase 1 — regenerate with `node {skillRoot}/10-validator/resolve-color.js --dump-index --output .temp/figma-from-code/color-index.json` if missing). If it cannot be produced, skip the sweep and note `rebindSweep: "skipped_no_index"` in the result.
+1. Read `.temp/figma-from-code/color-index.json` (written by Phase 1 — regenerate with `node {skillRoot}/scripts/resolve-color.js --dump-index --output .temp/figma-from-code/color-index.json` if missing). If it cannot be produced, skip the sweep and note `rebindSweep: "skipped_no_index"` in the result.
 2. Inline the `index` object into the following `use_figma` script (the sandbox has no filesystem access).
 3. Run it against the component root node.
 

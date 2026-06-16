@@ -139,15 +139,24 @@ Steps 4–7 (all inline):
 
 ## Workflow
 
-Step files live in `../7-build-component/`. Open the linked file before executing each step.
+Step files live in `../7-build-component/`. Use the **condensed quick references** by default. Only escalate to the full reference when a fix iteration fails and you need edge-case guidance (e.g., the full discrepancy patterns table, rebind sweep internals).
 
-| Step | File                                           | Phase    | What it does                                                                 |
-| ---- | ---------------------------------------------- | -------- | ---------------------------------------------------------------------------- |
-| 4a   | [../step-4-compare.md](../step-4-compare.md)   | Compare  | Instance-usage gate — `check-instances.js` diffs `code.json` vs `figma.json` |
-| 4b   | [../step-4-compare.md](../step-4-compare.md)   | Compare  | Sizing sanity check                                                          |
-| 4c   | [../step-4-compare.md](../step-4-compare.md)   | Compare  | Pixel diff against the app screenshot → verdict                              |
-| 5    | [../step-5-fix-loop.md](../step-5-fix-loop.md) | Fix      | Diagnose from comparison data and fix (up to 3 iterations)                   |
-| 5R   | [../step-5-fix-loop.md](../step-5-fix-loop.md) | Fix      | Rebind sweep — bind hardcoded colors that match token variables (always runs)|
+### Default (quick references — use these first):
+
+| Step | File                                             | Phase    | What it does                                                                 |
+| ---- | ------------------------------------------------ | -------- | ---------------------------------------------------------------------------- |
+| 4    | [../step-4-quick.md](../step-4-quick.md)         | Compare  | Instance gate + sizing check + pixel diff → verdict                          |
+| 5+6+7| [../step-5-quick.md](../step-5-quick.md)        | Fix/Done | Fix loop + rebind sweep + track + return result                              |
+
+### Full references (escalate only when needed):
+
+| Step | File                                           | When to use                                                                  |
+| ---- | ---------------------------------------------- | ---------------------------------------------------------------------------- |
+| 4a   | [../step-4-compare.md](../step-4-compare.md)   | Instance-usage gate — `check-instances.js` diffs `code.json` vs `figma.json` |
+| 4b   | [../step-4-compare.md](../step-4-compare.md)   | Sizing sanity check                                                          |
+| 4c   | [../step-4-compare.md](../step-4-compare.md)   | Pixel diff against the app screenshot → verdict                              |
+| 5    | [../step-5-fix-loop.md](../step-5-fix-loop.md) | Full discrepancy patterns table, detailed fix examples                       |
+| 5R   | [../step-5-fix-loop.md](../step-5-fix-loop.md) | Full rebind sweep script and Discovered collection logic                     |
 | 6    | [../step-6-track.md](../step-6-track.md)       | Finalize | Verify tracking files, refresh `updatedAt`, sanity-check invariants          |
 | 7    | [../step-7-return.md](../step-7-return.md)     | Finalize | Report result with node ID, match score, and any remaining issues            |
 
@@ -155,9 +164,9 @@ Step files live in `../7-build-component/`. Open the linked file before executin
 
 > Placeholders like `{skillRoot}` resolve from `state.json → config`.
 
-- `check-instances.js` — lives at `{skillRoot}/7-build-component/check-instances.js` (parent directory)
-- `compare.js` — lives at `{skillRoot}/10-validator/compare.js` (vendored from the standalone screenshot-comparison skill)
-- `inspect-styles.js` — used by Step 5 re-enumeration if needed; lives at `{skillRoot}/10-validator/inspect-styles.js`
+- `check-instances.js` — lives at `{skillRoot}/scripts/check-instances.js`
+- `compare.js` — lives at `{skillRoot}/scripts/compare.js` (vendored from the standalone screenshot-comparison skill)
+- `inspect-styles.js` — used by Step 5 re-enumeration if needed; lives at `{skillRoot}/scripts/inspect-styles.js`
 
 ---
 

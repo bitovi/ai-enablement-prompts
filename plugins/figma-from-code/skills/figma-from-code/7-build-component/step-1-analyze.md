@@ -34,7 +34,7 @@ This is the contract that Step 2 (build) and Step 4a (instance gate) consume. Ea
 ```json
 {
   "componentName": "CustomerInformation",
-  "sourceFile": "{componentsRoot}/.../CustomerInformation.tsx",
+  "sourceFile": "src/components/CustomerDetails/components/CustomerInformation/CustomerInformation.tsx",
   "analyzedAt": "2026-05-19T15:00:00Z",
   "lastCommit": { "hash": "...", "date": "...", "message": "..." },
   "liveInspection": "complete",
@@ -120,14 +120,14 @@ This is the contract that Step 2 (build) and Step 4a (instance gate) consume. Ea
 
 ### File location
 
-> Placeholders like `{componentsRoot}` resolve from `state.json → config`.
+> Placeholders like `{componentsRoot}` resolve from `state.json → config`. `{componentsRoot}` is an array of directory paths.
 
-Resolve the component directory from the source file path:
+Resolve the `.figma/code.json` path from the component's source file path (`sourceFile`), not from a single `componentsRoot` prefix:
 
-- `Button` → `{componentsRoot}/Button/.figma/code.json`
-- Nested modlet (e.g. `CustomerInformation` under `CustomerDetails/components/...`) → `{componentsRoot}/CustomerDetails/components/CustomerInformation/.figma/code.json`
-- `Icon/Star` → `{componentsRoot}/Icon/Star/.figma/code.json` (synthesized — Lucide icons have no local source file)
-- `Asset/CartonLogoSvg` → `{componentsRoot}/Asset/CartonLogoSvg/.figma/code.json`
+- `Button` with `sourceFile` at `src/components/Button/Button.tsx` → `src/components/Button/.figma/code.json`
+- Nested modlet (e.g. `CustomerInformation` under `CustomerDetails/components/...`) → `path.dirname(sourceFile)/.figma/code.json`
+- `Icon/Star` → `{componentsRoot[0]}/Icon/Star/.figma/code.json` (synthesized — Lucide icons have no local source file; use the first `componentsRoot` entry)
+- `Asset/CartonLogoSvg` → `{componentsRoot[0]}/Asset/CartonLogoSvg/.figma/code.json`
 
 Create the `.figma/` directory (and any missing parents) before writing.
 
@@ -550,7 +550,7 @@ Write this result to `.temp/figma-from-code/build-results/{componentName}.json` 
 **Enforcement gate** — before you call `use_figma` to start building, run:
 
 ```bash
-node {skillRoot}/7-build-component/check-prereqs.js <componentName> <sourceFile.tsx>
+node {skillRoot}/scripts/check-prereqs.js <componentName> <sourceFile.tsx>
 ```
 
 The script reads imports from `sourceFile.tsx`, looks each one up in `.temp/figma-from-code/builtComponents.json`, and either writes `.temp/figma-from-code/prereqs/<componentName>.ok` (exit 0) or prints the rejection JSON and exits 1. A `PreToolUse` hook on the `use_figma` tool blocks any call that creates a fresh component (contains `figma.createComponent()` with a `<var>.name = '<componentName>'` assignment) unless the matching `.ok` marker exists and is fresh (< 1 hour). Icon/ and Asset/ masters are exempt. The hook ships with the plugin at `hooks/figma-prereqs-gate.js` and registers automatically when the plugin is enabled.
@@ -600,7 +600,7 @@ Before building, inspect the actual rendered component in the browser to capture
 Run `inspect-styles.js` against the component's selector on the dev server:
 
 ```bash
-node {skillRoot}/10-validator/inspect-styles.js \
+node {skillRoot}/scripts/inspect-styles.js \
   "{devServerUrl}/{route}" \
   --selector "{componentSelector}" \
   --output ".temp/figma-from-code/screenshots/{ComponentName}/"
@@ -627,7 +627,7 @@ This produces:
 **Batch mode** — inspect-styles can be pre-run in batch for all components in a tier:
 
 ```bash
-node {skillRoot}/10-validator/inspect-styles.js --batch manifest.json
+node {skillRoot}/scripts/inspect-styles.js --batch manifest.json
 ```
 
 Where `manifest.json` contains entries like:

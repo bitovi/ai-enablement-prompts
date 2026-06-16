@@ -18,7 +18,7 @@ Thin dispatcher. Delegates every phase to a subagent, reads only small summary f
   "devServerUrl": "http://localhost:5173",
   "devServerStart": "npm run dev",
   "sourceDir": "src",                          // app source root
-  "componentsRoot": "src/components",          // where component modlets + .figma/ tracking files live
+  "componentsRoot": ["src/components"],        // array of component directories (supports monorepos); populated after Phase 0a discovery
   "pagesRoot": "src/pages",                    // where page/screen sources + figma-screen.json live
   "cssPath": "src/index.css",                  // CSS custom-properties file for token extraction
   "tailwindConfigPath": "tailwind.config.js",  // or null for Tailwind v4 / vanilla CSS projects
@@ -74,6 +74,8 @@ The orchestrator never opens a sub-skill's `SKILL.md` file — see Hard Gates ab
 
 Sub-skill files reference config values as `{devServerUrl}`, `{sourceDir}`, `{componentsRoot}`, `{pagesRoot}`, `{cssPath}`, `{tailwindConfigPath}`, `{iconLibrary}`, `{skillRoot}`, etc. Subagents resolve these placeholders from `state.json → config` before executing any commands. The orchestrator also substitutes resolved values from `state.config` when composing dispatch prompts so subagents always receive concrete paths and URLs.
 
+**`componentsRoot` is an array.** Most config references pass the full array to subagents. Subagents that write `.figma/` tracking files derive the write path from each component's `sourcePath` (in `component-map.json`) rather than from a single `componentsRoot` prefix. For synthetic components (icons, assets) that have no source file, use the first entry in the array.
+
 ---
 
 ## State Ledger
@@ -88,7 +90,7 @@ Maintain `.temp/figma-from-code/state.json`:
     "devServerUrl": "http://localhost:5173",
     "devServerStart": "npm run dev",
     "sourceDir": "packages/client/src",
-    "componentsRoot": "packages/client/src/components",
+    "componentsRoot": ["packages/client/src/components"],
     "pagesRoot": "packages/client/src/pages",
     "cssPath": "packages/client/src/index.css",
     "tailwindConfigPath": "packages/client/tailwind.config.js",
@@ -138,12 +140,12 @@ Maintain `.temp/figma-from-code/state.json`:
 **Config detection (runs once, before Phase 0a).** On a fresh run the orchestrator detects project-specific values before writing `state.json`:
 
 1. Read `package.json` (root and any workspace roots) — find the `dev` or `start` script and extract the port from `--port`, `PORT=`, or Vite/CRA defaults; derive `devServerUrl`.
-2. Locate the components directory: look for `src/components`, `packages/*/src/components`, or the first directory containing `.tsx` modlets — use as `componentsRoot`; strip the trailing `/components` segment for `sourceDir`.
-3. Locate the pages/screens directory: look for a sibling `pages`, `screens`, or `routes` directory next to `componentsRoot`.
+2. Set `componentsRoot` to `[]` (empty array). Component directories are discovered by Phase 0a and confirmed by the user at the Wave 1 pause. Set `sourceDir` to the most likely app source root (e.g., `src`, `packages/client/src`) based on `package.json` workspace structure.
+3. Locate the pages/screens directory: look for `pages`, `screens`, or `routes` under `sourceDir`.
 4. Locate the CSS custom-properties file: prefer `src/index.css`, `packages/*/src/index.css`, or any `*.css` file containing `--` custom properties.
 5. Detect `tailwindConfigPath`: check for `tailwind.config.js`, `tailwind.config.ts`, `tailwind.config.cjs` at the repo root and likely package roots; set to `null` if absent (Tailwind v4 / vanilla CSS project).
 6. Detect `iconLibrary`: grep `package.json` dependencies for `lucide-react`, `react-icons`, `@heroicons/react`, `@radix-ui/react-icons`; use the first match or `null`.
-7. Present the resolved config to the user in a compact table and ask for confirmation or corrections before proceeding.
+7. Present the resolved config to the user in a compact table. Note that `componentsRoot` will be populated after Phase 0a discovery. Ask for confirmation or corrections before proceeding.
 8. Persist the confirmed object as `config` in `state.json`. On `resume`, read config from `state.json` — never re-detect.
 
 After confirming config, create `.temp/figma-from-code/state.json` from the template above. Set `fileKey` and `startedAt` to current ISO timestamp; set `config` to the confirmed object; all `phases` values to `"pending"`; all other fields empty.
@@ -171,8 +173,8 @@ All skill files live under `{skillRoot}/`. Shell steps (normalization after Phas
 | 1       | `3-setup-tokens/SKILL.md`                        | `fileKey`, `existingCollections`; config: `cssPath`, `tailwindConfigPath`                                                                                                                                                                               | `tokens-summary.json`        | `variableMapPath`                                                                                                                                                                                     | `phase1: complete` AND `tokens-summary.json` AND `variables.json` AND `resolved-colors.json` all exist under `.temp/figma-from-code/` |
 | 2       | `4-setup-structure/SKILL.md`                     | `fileKey`, `existingPages`                                                                                                                                                                                                                              | `structure-summary.json`     | `figmaNodes` (`foundationsPageId`, `componentsPageId`, `screensPageId`, `foundationsFrameId`, `iconsFrameId`, `screensFrameId`)                                                                       | `phase2: complete` AND page/icons/screens IDs in `figmaNodes` are non-null |
 | 2.5     | `5-precapture/SKILL.md` (one subagent)           | `fileKey` only — subagent owns and builds all manifests itself from `component-map.json`; config: `devServerUrl`                                                                                                                                         | `precapture-all.json`, `precapture-screens.json` | `phases.phase2_5`                                                                                                                                                                                     | `phase2_5: complete`                                                       |
-| 3 pre   | `6-build-tier/icon-preamble/SKILL.md`            | `fileKey`, `figmaNodes`; subagent reads `builtComponents.json` from disk; config: `devServerUrl`, `componentsRoot`                                                                                                                                       | `icon-preamble-results.json` | merge `created` into `builtComponents`; rewrite `builtComponents.json`                                                                                                                                | all icons already in `builtComponents`                                     |
-| 3 tiers | `6-build-tier/SKILL.md` (one subagent/tier)      | `fileKey`, `tier` (number), `tierLabel`, `componentsPageId` (from `figmaNodes`); subagent reads `builtComponents.json` from disk; config: `devServerUrl`, `componentsRoot`                                                                               | `build-tier{N}.json`         | `builtComponents`, `figmaNodes.tier{N}FrameId` (read from `build-tier{N}.json → tierFrameId`), `tierProgress.tier{N}`; rewrite `builtComponents.json`; set `phases.phase3: complete` after all tiers   | `tierProgress.tier{N}: complete`                                           |
+| 3 pre   | `6-build-tier/icon-preamble/SKILL.md`            | `fileKey`, `figmaNodes`; subagent reads `builtComponents.json` from disk; config: `devServerUrl`, `componentsRoot` (array)                                                                                                                               | `icon-preamble-results.json` | merge `created` into `builtComponents`; rewrite `builtComponents.json`                                                                                                                                | all icons already in `builtComponents`                                     |
+| 3 tiers | `6-build-tier/SKILL.md` (one subagent/tier)      | `fileKey`, `tier` (number), `tierLabel`, `componentsPageId` (from `figmaNodes`); subagent reads `builtComponents.json` from disk; config: `devServerUrl`, `componentsRoot` (array)                                                                        | `build-tier{N}.json`         | `builtComponents`, `figmaNodes.tier{N}FrameId` (read from `build-tier{N}.json → tierFrameId`), `tierProgress.tier{N}`; rewrite `builtComponents.json`; set `phases.phase3: complete` after all tiers   | `tierProgress.tier{N}: complete`                                           |
 | 4       | `8-build-screens/SKILL.md` (one subagent/screen) | `fileKey`, `figmaNodes`, `preExistingScreens`; per-screen: `screenName`, `route`, `pageSourceFile`, `keyComponents` (read from `component-map.json → routes/tree`); subagent reads `builtComponents.json` from disk; config: `devServerUrl`, `pagesRoot` | `build-screens.json`         | `phases.phase4`                                                                                                                                                                                       | `phase4: complete`                                                         |
 | 5       | `9-validate/SKILL.md`                            | `fileKey`, `builtComponents`, `figmaNodes`, `buildOrder`, `preExistingComponents`; config: `devServerUrl`                                                                                                                                               | `validation-summary.json`    | `phases.phase5`                                                                                                                                                                                       | always runs                                                                |
 
@@ -188,10 +190,8 @@ Wave 1  (parallel): Phase 0a  ||  Phase 0b
             (interactions.json reveals dialogs/menus/edit modes) + Figma inspection
           - 0b: static icon/asset scan (no Figma, no browser needed)
           After Phase 0b completes: run normalization script (before the pause)
-          ⏸ PAUSE — write progress.md; surface the discovered `componentDirectories`
-            (from discovery-summary.json) to the user for review; note that directory
-            exclusions can be applied by re-running Phase 0a with an exclusion list
-            before proceeding; ask user to continue or stop
+          ⏸ PAUSE — Component Directory Confirmation (see below); then ask
+            user to continue or stop
 
 Wave 2  (as soon as normalization + Phase 0a are both done):
           Phase 1  ||  Phase 2  (parallel — both only need 0a outputs)
@@ -199,7 +199,7 @@ Wave 2  (as soon as normalization + Phase 0a are both done):
 
 Wave 3  (starts when normalization + Phase 1 + Phase 2 are ALL done):
           Before dispatching Phase 2.5, start the shared browser server:
-            node {skillRoot}/10-validator/browser-server.js &
+            node {skillRoot}/scripts/browser-server.js &
           (Background process. Scripts fall back to per-script browsers if it
           isn't running. Phase 5 (9-validate) kills it via pw-server.pid.)
           Phase 2.5 — dispatch ONE subagent with unified manifest (all
@@ -221,6 +221,44 @@ Wave 6  (sequential): Phase 5 validation
           ⏸ PAUSE — write final progress.md (build complete)
 ```
 
+### Wave 1 Pause: Component Directory Confirmation
+
+At the Wave 1 pause, read `componentDirectories` and `excludedDirectories` from `discovery-summary.json` and present them to the user for confirmation before proceeding:
+
+**One directory found:**
+> I found **1 component directory** with {count} components:
+> - `{path}` ({count} components, subdirs: {list})
+>
+> Is this the correct directory to use?
+
+**Multiple directories found (monorepo or multi-app):**
+> I found **{N} component directories** across your project:
+>
+> | # | Directory | Components | Subdirs |
+> |---|-----------|------------|---------|
+> | 1 | `{path1}` | {count1} | {subdirs1} |
+> | 2 | `{path2}` | {count2} | {subdirs2} |
+> | … | … | … | … |
+>
+> Which directories should be included? (Select all that apply, or provide a custom list.)
+
+**Zero directories found:**
+> No component directories were automatically detected. Please provide the path(s) to your component directories.
+
+**Excluded directories** (always shown if any):
+> The following directories were excluded by default:
+> - `{path}` — {reason} (e.g., "shadcn primitives (ui/ under components/)", "test directory")
+>
+> Let me know if any should be included.
+
+After the user confirms:
+
+1. Update `state.json → config.componentsRoot` with the confirmed array of directory paths
+2. Derive `sourceDir` from the common ancestor of all confirmed roots if it's not already set correctly (e.g., if all roots are under `packages/client/src/`, set `sourceDir` to `packages/client/src`; if roots span multiple packages, keep `sourceDir` as the repo root or the user-confirmed value)
+3. Write `progress.md`
+
+---
+
 **Dependency summary:**
 
 - Phase 1 needs: Phase 0a (`existingCollections`)
@@ -239,7 +277,7 @@ Wave 6  (sequential): Phase 5 validation
 Run the normalization script, then re-read `discovery-summary.json` to refresh `buildOrder` in state. Skip if `phase0b: complete` AND `phase3` is `in_progress` or `complete` (normalization already applied).
 
 ```bash
-node {skillRoot}/1-discovery-components/normalize-component-map.js \
+node {skillRoot}/scripts/normalize-component-map.js \
   .temp/figma-from-code/component-map.json \
   .temp/figma-from-code/icons.json \
   --write
@@ -282,7 +320,7 @@ After preamble completes, merge new icons into `state.builtComponents` and rewri
 After reading `build-tier{N}.json`, extract `tierFrameId` and store it as `figmaNodes.tier{N}FrameId` in state. Then run:
 
 ```bash
-node {skillRoot}/collect-tier-results.js --tier {N} --components "{comma-separated}" --tier-frame-id "{tierFrameId}"
+node {skillRoot}/scripts/collect-tier-results.js --tier {N} --components "{comma-separated}" --tier-frame-id "{tierFrameId}"
 ```
 
 Read stdout for the one-line JSON summary. Then follow the **End-of-Phase Pause Protocol**: update `state.json`, write `progress.md`, and ask the user whether to continue to the next tier or stop. Each tier is a full pause point — the user may stop and a new orchestrator agent can resume from the next tier.
@@ -293,7 +331,7 @@ After all screen subagents complete:
 
 ```bash
 mkdir -p .temp/figma-from-code/build-results/screens
-node {skillRoot}/collect-screen-results.js --screens "{comma-separated}"
+node {skillRoot}/scripts/collect-screen-results.js --screens "{comma-separated}"
 ```
 
 ---
