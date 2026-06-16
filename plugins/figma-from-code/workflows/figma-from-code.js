@@ -9,9 +9,9 @@ export const meta = {
     { title: 'Setup', detail: 'Tokens, then file structure (foundations docs bind Phase 1 variables)' },
     { title: 'Pre-capture', detail: 'Screenshot all components and screens' },
     { title: 'Build Icons', detail: 'Create icon/asset components from SVG' },
-    { title: 'Build Tiers', detail: 'One subagent per tier; components built sequentially within a tier' },
+    { title: 'Build Tiers', detail: 'One subagent per component; tiers run sequentially, fresh context per component' },
     { title: 'Build Screens', detail: 'Compose screens from built components (parallel)' },
-    { title: 'Validate', detail: 'Compare Figma vs app, fix mismatches' },
+    { title: 'Validate', detail: 'Compare screen frames vs app screenshots, fix mismatches' },
   ],
 }
 
@@ -210,27 +210,26 @@ const PREAMBLE_SCHEMA = {
   required: ['success', 'created']
 }
 
-const TIER_SCHEMA = {
+const TIER_SETUP_SCHEMA = {
   type: 'object',
   properties: {
     success: { type: 'boolean' },
-    tier: { type: 'number' },
-    tierFrameId: { type: 'string' },
-    completed: { type: 'object', additionalProperties: { type: 'string' } },
-    failed: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-          status: { type: 'string', enum: ['failed', 'rejected', 'needs_authorization'] },
-          reason: { type: 'string' }
-        },
-        required: ['name', 'status']
-      }
-    }
+    tierFrameId: { type: 'string' }
   },
-  required: ['success', 'tier', 'completed', 'failed']
+  required: ['success', 'tierFrameId']
+}
+
+const COMPONENT_BUILD_SCHEMA = {
+  type: 'object',
+  properties: {
+    name: { type: 'string' },
+    success: { type: 'boolean' },
+    status: { type: 'string', enum: ['success', 'partial_match', 'failed', 'rejected', 'needs_authorization'] },
+    nodeId: { type: 'string' },
+    matchPct: { type: 'number' },
+    reason: { type: 'string' }
+  },
+  required: ['name', 'success', 'status']
 }
 
 const COLLECT_SCHEMA = {
@@ -795,9 +794,9 @@ if (shouldRunWave('wave4', startPhase, endPhase)) {
     })
   )
 
-  // --- Tier builds: ONE subagent per tier, executing 7a (build) then 7b
-  //     (review/fix) inline for each component, sequentially within the tier.
-  //     Tiers run sequentially because tier N+1 instances tier N components. ---
+  // --- Tier builds: one subagent per COMPONENT for fresh context each time.
+  //     Tiers run sequentially because tier N+1 instances tier N components.
+  //     Within a tier, components build sequentially (Figma API rate limits). ---
   for (let i = 0; i < tiers.length; i++) {
     const tierDef = tiers[i]
     phase('Build Tiers')
@@ -815,50 +814,112 @@ if (shouldRunWave('wave4', startPhase, endPhase)) {
       continue
     }
 
-    const tierResult = await agent(
+    // --- Create tier frame (lightweight setup agent) ---
+    const tierSetup = await agent(
       [
-        'Build all Figma components for Tier ' + tierDef.tier + ' ("' + tierDef.label + '").',
+        'Create the tier container frame on the Components page for Tier ' + tierDef.tier + ' ("' + tierDef.label + '").',
         '',
-        'Read and follow the skill instructions at: ' + SKILL + '/6-build-tier/SKILL.md',
-        'For each component, execute the build phase (' + SKILL + '/7-build-component/7a/SKILL.md) and then the review/fix phase (' + SKILL + '/7-build-component/7b-review-fix-component/SKILL.md) inline, sequentially — complete both phases for one component before starting the next. Do NOT spawn subagents.',
+        'Use the Figma MCP to create a frame named "Tier ' + tierDef.tier + ' — ' + tierDef.label + '" on the Components page.',
+        '  parentId: ' + (figmaNodes.componentsPageId || ''),
+        '  layoutMode: VERTICAL, itemSpacing: 80, padding: 40',
+        '  primaryAxisSizingMode: AUTO, counterAxisSizingMode: AUTO',
         '',
-        'Inputs:',
-        '  fileKey: ' + fileKey,
-        '  tier: ' + tierDef.tier,
-        '  tierLabel: ' + tierDef.label,
-        '  components: ' + tierDef.components.join(', '),
-        '  componentsPageId: ' + (figmaNodes.componentsPageId || ''),
-        '  devServerUrl: ' + config.devServerUrl,
-        '  componentsRoot: ' + JSON.stringify(config.componentsRoot),
-        '',
-        'Read builtComponents.json from ' + TEMP + '/ and skip components that already have a node ID.',
-        'Create the tier frame on the Components page first (per the skill) and record its node ID.',
-        'Write per-component results to ' + TEMP + '/build-results/.',
-        'Do NOT modify state.json.',
-        '',
-        'Return: success, tier, tierFrameId, completed (map of component name to component-set node ID for everything built this run), failed (array of { name, status, reason } for failed/rejected/needs_authorization components).',
+        'Return: success, tierFrameId (the created frame node ID).',
       ].join('\n'),
-      { label: 'build-tier-' + tierDef.tier, phase: 'Build Tiers', schema: TIER_SCHEMA }
+      { label: 'tier-setup-' + tierDef.tier, phase: 'Build Tiers', model: 'sonnet', schema: TIER_SETUP_SCHEMA }
     )
 
-    if (!tierResult || !tierResult.success || !tierResult.tierFrameId) {
-      // This tier gates every later tier that instances its components. Skipping
-      // silently would orphan the rest of the build — stop so the user can resume.
+    if (!tierSetup || !tierSetup.success || !tierSetup.tierFrameId) {
       skippedTiers.push(tierDef.tier)
-      log('ERROR: Tier ' + tierDef.tier + ' build failed — stopping (later tiers depend on it)')
+      log('ERROR: Tier ' + tierDef.tier + ' frame creation failed — stopping')
       return {
-        error: 'Tier ' + tierDef.tier + ' build failed',
-        details: tierResult,
+        error: 'Tier ' + tierDef.tier + ' frame setup failed',
+        details: tierSetup,
         fileKey: fileKey,
         builtComponents: Object.keys(builtComponents).length,
         skippedTiers: skippedTiers,
-        resumeHint: 'Re-run with startPhase: "phase3" to resume (built components are skipped).',
+        resumeHint: 'Re-run with startPhase: "phase3" to resume.',
       }
     }
 
-    builtComponents = { ...builtComponents, ...tierResult.completed }
-    figmaNodes['tier' + tierDef.tier + 'FrameId'] = tierResult.tierFrameId
-    tierResult.failed.forEach(f => failedComponents.push({ ...f, tier: tierDef.tier }))
+    const tierFrameId = tierSetup.tierFrameId
+    figmaNodes['tier' + tierDef.tier + 'FrameId'] = tierFrameId
+
+    // --- Build each component with its own fresh-context subagent ---
+    const tierCompleted = {}
+    const tierFailed = []
+
+    for (let j = 0; j < toBuild.length; j++) {
+      const componentName = toBuild[j]
+      log('  [' + (j + 1) + '/' + toBuild.length + '] Building: ' + componentName)
+
+      const compResult = await agent(
+        [
+          'Build and validate one Figma component: ' + componentName,
+          '',
+          'Read the build skill at: ' + SKILL + '/7-build-component/7a/SKILL.md',
+          'Then read the review/fix skill at: ' + SKILL + '/7-build-component/7b-review-fix-component/SKILL.md',
+          'Execute both phases for this single component (analyze → build → screenshot → compare → fix loop → rebind → track → return).',
+          '',
+          'Inputs:',
+          '  fileKey: ' + fileKey,
+          '  componentName: ' + componentName,
+          '  tier: ' + tierDef.tier,
+          '  tierFrameId: ' + tierFrameId,
+          '  componentsPageId: ' + (figmaNodes.componentsPageId || ''),
+          '  devServerUrl: ' + config.devServerUrl,
+          '  componentsRoot: ' + JSON.stringify(config.componentsRoot),
+          '',
+          'Read builtComponents.json from ' + TEMP + '/ for instance lookup.',
+          'Read component-map.json from ' + TEMP + '/ for this component\'s metadata (sourcePath, tier, children, screenshotUrl, selector).',
+          '',
+          'Write the result to ' + TEMP + '/build-results/' + componentName + '.json',
+          'Do NOT modify state.json or builtComponents.json.',
+          '',
+          'Return: name, success, status (success/partial_match/failed/rejected/needs_authorization), nodeId (component or component-set node ID if built), matchPct, reason (if failed/rejected).',
+        ].join('\n'),
+        { label: 'build-' + componentName, phase: 'Build Tiers', schema: COMPONENT_BUILD_SCHEMA }
+      )
+
+      if (compResult && compResult.success && compResult.nodeId) {
+        tierCompleted[componentName] = compResult.nodeId
+        builtComponents[componentName] = compResult.nodeId
+      } else {
+        const failure = {
+          name: componentName,
+          status: (compResult && compResult.status) || 'failed',
+          reason: (compResult && compResult.reason) || 'agent returned no result',
+          tier: tierDef.tier
+        }
+        tierFailed.push(failure)
+        failedComponents.push(failure)
+      }
+
+      // Update on-disk registry after each component so the next component
+      // in this tier can resolve it as an instance if needed.
+      await withRetry('registry-update-' + componentName, 2, r => r && r.success, () =>
+        agent(materializeRegistryPrompt('after building ' + componentName), {
+          label: 'registry-' + componentName, phase: 'Build Tiers', model: 'haiku', schema: STATE_UPDATE_SCHEMA
+        })
+      )
+    }
+
+    log('Tier ' + tierDef.tier + ' complete: ' + Object.keys(tierCompleted).length + ' built, ' + tierFailed.length + ' failed')
+
+    // If nothing was built at all AND there were failures, stop — the tier
+    // is broken and later tiers will orphan.
+    if (Object.keys(tierCompleted).length === 0 && tierFailed.length > 0) {
+      skippedTiers.push(tierDef.tier)
+      log('ERROR: Tier ' + tierDef.tier + ' — all components failed, stopping')
+      return {
+        error: 'Tier ' + tierDef.tier + ' build failed (all components failed)',
+        fileKey: fileKey,
+        builtComponents: Object.keys(builtComponents).length,
+        skippedTiers: skippedTiers,
+        failedComponents: tierFailed,
+        resumeHint: 'Re-run with startPhase: "phase3" to resume (built components are skipped).',
+      }
+    }
 
     // collect-tier-results.js writes build-tier{N}.json, merges completed node IDs
     // into state.builtComponents + builtComponents.json, and sets tierProgress —
@@ -868,19 +929,17 @@ if (shouldRunWave('wave4', startPhase, endPhase)) {
         [
           'Finalize Tier ' + tierDef.tier + ' results.',
           '',
-          'Run: node ' + SKILL + '/scripts/collect-tier-results.js --tier ' + tierDef.tier + ' --components "' + tierDef.components.join(',') + '" --tier-frame-id "' + tierResult.tierFrameId + '"',
+          'Run: node ' + SKILL + '/scripts/collect-tier-results.js --tier ' + tierDef.tier + ' --components "' + tierDef.components.join(',') + '" --tier-frame-id "' + tierFrameId + '"',
           'Read its one-line JSON stdout for the counts.',
           '',
           'Then read ' + TEMP + '/state.json, merge this into it, and write it back:',
-          JSON.stringify({ figmaNodes: { ['tier' + tierDef.tier + 'FrameId']: tierResult.tierFrameId } }),
+          JSON.stringify({ figmaNodes: { ['tier' + tierDef.tier + 'FrameId']: tierFrameId } }),
           '',
           'Return: success, completed (count), failed (count).',
         ].join('\n'),
         { label: 'collect-tier-' + tierDef.tier, phase: 'Build Tiers', model: 'haiku', schema: COLLECT_SCHEMA }
       )
     )
-
-    log('Tier ' + tierDef.tier + ' complete: ' + Object.keys(tierResult.completed).length + ' built, ' + tierResult.failed.length + ' failed')
   }
 
   await withRetry('update-state-phase3', 2, r => r && r.success, () =>
@@ -983,20 +1042,19 @@ if (shouldRunWave('wave5', startPhase, endPhase)) {
 
 if (shouldRunWave('wave6', startPhase, endPhase)) {
   phase('Validate')
-  log('Wave 6: Validating all built components against app screenshots')
+  log('Wave 6: Validating screen frames against app screenshots')
 
   const validation = await agent(
     [
-      'Validate every built Figma component against its app screenshot. Run fix loops on mismatches for components built during this run. Clean up the Components page layout.',
+      'Validate assembled screen frames against full-page app screenshots. Fix mismatched screens (up to 2 iterations). Clean up the Components page layout.',
       '',
       'Read and follow the skill instructions at: ' + SKILL + '/9-validate/SKILL.md',
       '',
       'Inputs:',
       '  fileKey: ' + fileKey,
       '  devServerUrl: ' + config.devServerUrl,
-      '  builtComponents: ' + JSON.stringify(builtComponents),
-      '  preExistingComponents (validate read-only, no fix loop): ' + JSON.stringify(preExistingComponents),
       '  figmaNodes: ' + JSON.stringify(figmaNodes),
+      '  preExistingScreens (compare read-only, no fix loop): ' + JSON.stringify(preExistingScreens),
       '  buildOrder tierCount: ' + tiers.length,
       '',
       'Write validation-summary.json to ' + TEMP + '/ and the full report to .temp/figma-validation/report.md.',
