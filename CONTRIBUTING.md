@@ -58,6 +58,22 @@ Please use numbered filenames to indicate execution order.
 
 ---
 
+## Plugin Format (Claude Code / Copilot)
+
+Newer contributions ship as **plugins** under `plugins/<plugin-name>/` and are installed through the marketplace rather than copy-pasted. Use the existing [`plugins/creating-prompts`](./plugins/creating-prompts) plugin as the reference template. A plugin should include:
+
+- `.claude-plugin/plugin.json` — the manifest. `name` is the only required field; `description`, `version`, and an `author` object (`name`, `url`/`email`) are recommended.
+- A plugin `README.md` covering what it does, installation, and usage.
+- One or more components in their conventional folders:
+  - `skills/<skill-name>/SKILL.md` — a skill (frontmatter `name` + `description`; see the `creating-prompts` plugin for the full frontmatter reference). Supporting files go in `references/`, `examples/`, or `scripts/` beside the `SKILL.md`.
+  - `agents/<agent-name>.md` — a subagent. Plugin agents are namespaced as `<plugin-name>:<agent-name>`; reference them by that qualified name from skills so a user's own same-named agent can't shadow them.
+
+Then register the plugin in [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json) by adding an entry with `name`, `source` (`./plugins/<plugin-name>`), and a short one-line `description`.
+
+> **Keep all paths inside the plugin directory.** Once a plugin is installed it is copied to a cache, so paths that traverse outside the plugin root (e.g. `../shared`) will not resolve. Bundle everything a skill or agent needs within its own plugin folder.
+
+---
+
 ## Style Guidelines
 
 - Keep instructions concise and readable
