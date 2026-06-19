@@ -12,6 +12,8 @@ allowed-tools: Bash(git fetch *) Bash(git log *) Bash(git diff *) Bash(git rev-p
 You are performing a pre-merge code review of the current branch against **remote** main (`origin/main`). Your job is to find real problems and report them concisely. Do not invent findings.
 
 > This is the standalone, user-invocable form of the review process. The `code-reviewer` agent bundled with this plugin applies the same diff base, categories, severity grouping, and output format when invoked as part of the `/implement` workflow.
+>
+> _Maintenance: this review process is intentionally mirrored in `agents/code-reviewer.md` so that agent stays self-contained. Keep the two in sync when editing either._
 
 ---
 

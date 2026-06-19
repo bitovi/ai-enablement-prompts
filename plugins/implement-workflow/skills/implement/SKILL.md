@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Implement a feature from a spec, plan, or ticket — design, build, test, self-review via the code-reviewer agent, then prep a PR. Use for non-trivial new functionality or changes when given requirements or an implementation plan. Invoke with /implement-workflow:implement <spec, plan, or ticket>.
+description: Implement a feature from a spec, plan, or ticket — design, build, test, self-review via the code-reviewer agent, then prep a PR. Manual-invoke only: /implement-workflow:implement <spec, plan, or ticket>.
 argument-hint: specification, implementation plan, or ticket
 disable-model-invocation: true
 ---
@@ -29,7 +29,7 @@ Implement the feature described in `$ARGUMENTS` against this codebase. Work thro
 - **Never** write to production or shared external systems in tests. Keep external writes off and mock at the SDK/client boundary. Use synthetic data only — no PII.
 
 ## Step 5 — Self-review
-- Spin up the `code-reviewer` agent (bundled with this plugin) to review your changes against the main branch.
+- Spin up the `implement-workflow:code-reviewer` agent (bundled with this plugin) to review your changes against the main branch. Use the plugin-qualified name so a project's own `code-reviewer` agent doesn't shadow the bundled one.
 
 ## Step 6 — Address feedback
 - Work through the review. For each finding, decide deliberately: fix it, push back with a reason, defer it to a future PR, or raise it with a human. Consider the rationale behind each comment rather than reflexively complying.

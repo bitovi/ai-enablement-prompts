@@ -1,7 +1,7 @@
 {
   "name": "implement-workflow",
   "version": "1.0.0",
-  "description": "End-to-end feature implementation workflow: understand a spec, design, build, test, self-review via a code-reviewer agent, then prep a PR. Bundles the implement, ready-to-push, review-pr, and suggest-pr skills plus a code-reviewer agent. Invoke with /implement-workflow:implement.",
+  "description": "End-to-end feature implementation workflow: understand a spec, design, build, test, self-review via a bundled code-reviewer agent, then prep a PR. Invoke with /implement-workflow:implement.",
   "author": {
     "name": "Mike Gvozdev",
     "url": "https://github.com/gvzdv"

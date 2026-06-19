@@ -16,7 +16,7 @@
     {
       "name": "implement-workflow",
       "source": "./plugins/implement-workflow",
-      "description": "End-to-end feature implementation workflow: understand a spec, design, build, test, self-review via a code-reviewer agent, then prep a PR. Bundles the implement, ready-to-push, review-pr, and suggest-pr skills plus a code-reviewer agent."
+      "description": "End-to-end feature implementation workflow: design, build, test, self-review via a code-reviewer agent, then prep a PR."
     }
   ]
 }

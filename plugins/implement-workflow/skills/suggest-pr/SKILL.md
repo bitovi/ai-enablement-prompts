@@ -2,31 +2,32 @@
 name: suggest-pr
 description: Suggest a pull request title and description for the current branch. Use when the user wants to open a PR, wants a PR description, or asks what to write for a pull request.
 disable-model-invocation: true
-allowed-tools: Bash(git log *) Bash(git diff *) Bash(git branch *) Bash(git rev-parse *)
+allowed-tools: Bash(git fetch *) Bash(git log *) Bash(git diff *) Bash(git branch *) Bash(git rev-parse *)
 ---
 
 # Suggest PR Title and Description
 
 ## Steps
 
-1. **Identify the base branch** by running:
+1. **Identify the current branch and refresh the base** by running:
    ```
+   git fetch origin
    git rev-parse --abbrev-ref HEAD
    ```
-   The base branch is usually `main` (substitute your project's trunk branch if different).
+   The base is `origin/main` (substitute your project's trunk branch if different). Use the remote base so the diff isn't computed against a stale local `main`.
 
 2. **Read all commits on this branch** that diverge from the base:
    ```
-   git log --oneline main..HEAD
+   git log --oneline origin/main..HEAD
    ```
 
 3. **Read the full diff summary** against the base:
    ```
-   git diff main...HEAD --stat
+   git diff origin/main...HEAD --stat
    ```
    And the full diff for more detail:
    ```
-   git diff main...HEAD
+   git diff origin/main...HEAD
    ```
 
 4. **Suggest a PR title and description** following the format below.

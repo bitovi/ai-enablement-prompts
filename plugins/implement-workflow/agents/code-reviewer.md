@@ -2,7 +2,7 @@
 name: code-reviewer
 description: Expert code reviewer for this project. Use proactively after code is written or modified to review the current branch against the main branch for bugs, security issues, type safety, and project conventions (architecture/layering, auth guards, typed config layer, path aliases, idempotent migrations).
 tools: Read, Grep, Glob, Bash
-model: opus
+model: inherit
 color: orange
 memory: project
 ---
@@ -19,6 +19,8 @@ Run the review as a pre-merge code check against **remote** main (`origin/main`,
 4. **Output** an **Executive Summary first** (ready to open a PR vs. needs changes; total findings + highest severity; the single most important thing), then findings grouped into the four sections below. Group each finding by severity (**High / Medium / Low**), one line per finding as `path/to/file.ts:line — description`. Never omit a section — write `None found.` if empty.
 
 The standalone `review-pr` skill in this plugin defines the same process and output format if you want the full checklist.
+
+> _Maintenance: this review process is intentionally mirrored in `skills/review-pr/SKILL.md` so the agent stays self-contained. Keep the two in sync when editing either._
 
 ## What to check
 
@@ -50,6 +52,4 @@ Skip style nits already auto-fixed by the project's formatter/linter unless they
 
 ## Memory
 
-Use your project memory to record recurring anti-patterns, architectural decisions, and test-coverage blind spots specific to this project. Do not record one-off issues already fixed in the diff under review.
-
-**Memory location is the repo root, always.** While reviewing you often `cd` into a subpackage; a relative `.claude/` path would create a stray, orphaned memory index. Before any read or write, resolve the absolute base once with `git rev-parse --show-toplevel` and build the path from it (e.g. `"$(git rev-parse --show-toplevel)/.claude/agent-memory/code-reviewer/"`). Append new index lines to the existing root `MEMORY.md`; do not recreate it.
+This agent runs with `memory: project`, so Claude manages its project-scoped memory for you — there is no need to hand-roll file paths. Use that memory to record recurring anti-patterns, architectural decisions, and test-coverage blind spots specific to this project. Do not record one-off issues already fixed in the diff under review.

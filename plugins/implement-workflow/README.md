@@ -1,4 +1,4 @@
-# implement
+# implement-workflow
 
 An end-to-end feature-implementation workflow for Claude Code. Hand it a spec, plan, or ticket and it drives the change from understanding through a green, review-clean PR — designing, building, testing, self-reviewing with a dedicated `code-reviewer` agent, then prepping the pull request.
 
@@ -63,7 +63,9 @@ claude plugin install implement-workflow@bitovi-ai-enablement
 
 It's deliberately **manual-invoke only** (`disable-model-invocation: true`) — Claude won't start building on its own; you trigger it.
 
-**What happens** — Claude works the eight steps as a visible to-do list, pausing to ask whenever the design, scope, or review feedback is unclear. At step 5 it launches the `code-reviewer` agent; at step 8 it runs `ready-to-push` and prints a ready-to-paste PR title and description. It does **not** commit, push, or open the PR — that stays your call.
+**What happens** — Claude works the eight steps as a visible to-do list, pausing to ask whenever the design, scope, or review feedback is unclear. At step 5 it launches the `implement-workflow:code-reviewer` agent; at step 8 it runs `ready-to-push` and prints a ready-to-paste PR title and description. It does **not** commit, push, or open the PR — that stays your call.
+
+> **Note:** the bundled `code-reviewer` agent runs with `memory: project`, so it keeps Claude-managed review notes scoped to the repo you run it in (stored under that repo's `.claude/`). If you'd rather it not persist anything in your project, drop the `memory: project` line from `agents/code-reviewer.md`.
 
 ### The bundled skills also work standalone
 
