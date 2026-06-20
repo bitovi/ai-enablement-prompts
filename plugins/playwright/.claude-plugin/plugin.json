@@ -1,0 +1,8 @@
+{
+  "name": "playwright",
+  "description": "Playwright-based QA workflows — E2E testing, debugging, responsive verification, visual diffing, computed styles comparison, and pixel-perfect orchestration. Requires Playwright MCP.",
+  "author": {
+    "name": "Bitovi",
+    "url": "https://www.bitovi.com"
+  }
+}
