@@ -17,6 +17,8 @@
       "name": "implement-workflow",
       "source": "./plugins/implement-workflow",
       "description": "End-to-end feature implementation workflow: design, build, test, self-review via a code-reviewer agent, then prep a PR."
+    },
+    {
       "name": "code",
       "source": "./plugins/code",
       "description": "Baseline planning, spec, and codebase understanding skills. Works with any codebase, any stack."
@@ -35,6 +37,11 @@
       "name": "figma-react",
       "source": "./plugins/figma-react",
       "description": "Full Figma-to-React lifecycle — design analysis, component implementation, visual sync, and Code Connect mapping. Requires Figma MCP."
+    },
+    {
+      "name": "figma-to-lwc-component",
+      "source": "./plugins/figma-to-lwc-component",
+      "description": "Guides implementation of repo-native Lightning Web Components from Figma designs, with optional Storybook and SLDS verification workflows. Requires Figma MCP."
     },
     {
       "name": "playwright",
