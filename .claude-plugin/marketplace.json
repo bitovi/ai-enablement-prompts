@@ -14,6 +14,9 @@
       "description": "Skills for creating new agent skills for Claude Code and VS Code Copilot"
     },
     {
+      "name": "implement-workflow",
+      "source": "./plugins/implement-workflow",
+      "description": "End-to-end feature implementation workflow: design, build, test, self-review via a code-reviewer agent, then prep a PR."
       "name": "code",
       "source": "./plugins/code",
       "description": "Baseline planning, spec, and codebase understanding skills. Works with any codebase, any stack."
