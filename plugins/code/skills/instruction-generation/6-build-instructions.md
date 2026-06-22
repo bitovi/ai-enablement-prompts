@@ -8,8 +8,9 @@ You must synthesize the following source materials:
 
 - `./{output-folder}/1-techstack.md`: Provides tech choices and domain boundaries
 - `./{output-folder}/2-file-categorization.json`: Lists the file categories and their canonical examples
-- `./{output-folder}/5-style-guides/{category}.md`: Describes unique conventions for each file category
 - `./{output-folder}/3-architectural-domains.json`: Defines how domains like `ui`, `routing`, `data-layer`, etc. are implemented, along with constraints and required patterns
+- `./{output-folder}/4-domains/{domain}.md`: Detailed analysis of how each architectural domain is implemented, including real code examples and conventions
+- `./{output-folder}/5-style-guides/{category}.md`: Describes unique conventions for each file category
 
 ---
 
@@ -23,7 +24,7 @@ This file must include:
 
 Explain the purpose of this file:
 
-- It enables AI coding assistants to generate features aligned with the project’s architecture and style.
+- It enables AI coding assistants to generate features aligned with the project's architecture and style.
 - It is based only on actual, observed patterns from the codebase — not invented practices.
 
 ---
@@ -84,7 +85,7 @@ Only use categories and file types present in this project.
 ## ⚠️ Requirements
 
 - **Do not** include invented best practices
-- **Do not** list categories or conventions that aren’t supported by the codebase
+- **Do not** list categories or conventions that aren't supported by the codebase
 - **Do not** omit any categories or domains defined in the analysis
 
 This file must give future LLMs enough information to build new features entirely within project conventions.

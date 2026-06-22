@@ -10,7 +10,7 @@
 >
 > Do not optimize for speed or brevity. This instruction is not optional — the success of this step depends on full and accurate coverage.
 
-For each of the domains listed in ./{output-folder}/3-architecture-domains.json, you're analyzing the codebase to understand how it implements the architectural domain: "{domain}".
+For each of the domains listed in ./{output-folder}/3-architectural-domains.json, you're analyzing the codebase to understand how it implements the architectural domain: "{domain}".
 
 The tech stack is summarized in ./{output-folder}/1-techstack.md.
 
@@ -30,5 +30,3 @@ Requirements:
 - Only describe what is actually used in this project.
 
 Your goal is to document how the "{domain}" domain is implemented within this specific codebase in such a way that anyone could leverage or add features to it.
-
-After writing each of the domain files, read the contents of [./5-styleguide-generation.md](./5-styleguide-generation.md) and proceed accordingly with {output-folder} as the `output-folder`.

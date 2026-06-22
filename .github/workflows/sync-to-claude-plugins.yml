@@ -1,0 +1,104 @@
+name: Sync plugins to claude-plugins
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.CLAUDE_PLUGINS_APP_ID }}
+          private-key: ${{ secrets.CLAUDE_PLUGINS_APP_PRIVATE_KEY }}
+          repositories: claude-plugins
+
+      - name: Checkout ai-enablement-prompts
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Checkout claude-plugins
+        uses: actions/checkout@v4
+        with:
+          repository: bitovi/claude-plugins
+          token: ${{ steps.app-token.outputs.token }}
+          path: target
+
+      - name: Create branch
+        id: branch
+        working-directory: target
+        run: |
+          SHORT_SHA="${{ github.sha }}"
+          BRANCH="sync/ai-enablement-$(date +%Y%m%d)-${SHORT_SHA:0:7}"
+          git checkout -b "$BRANCH"
+          echo "name=$BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Copy plugins
+        run: |
+          cp -r source/plugins/. target/ai-enablement-plugins/
+
+      - name: Merge marketplace
+        run: |
+          SOURCE="source/.claude-plugin/marketplace.json"
+          TARGET="target/.claude-plugin/marketplace.json"
+
+          mkdir -p "$(dirname "$TARGET")"
+
+          if [ ! -f "$TARGET" ]; then
+            jq '.plugins[].source |= gsub("^\\./plugins/"; "./ai-enablement-plugins/")' "$SOURCE" > "$TARGET"
+          else
+            # Upsert plugins from source into target by name (source wins on conflict)
+            # Rewrite source paths from ./plugins/ to ./ai-enablement-plugins/ before merging
+            jq -s '
+              .[0] as $target |
+              (.[1] | .plugins[].source |= gsub("^\\./plugins/"; "./ai-enablement-plugins/")) as $source |
+              $target | .plugins = (
+                ($target.plugins + $source.plugins) |
+                group_by(.name) |
+                map(last)
+              )
+            ' "$TARGET" "$SOURCE" > /tmp/merged.json
+            mv /tmp/merged.json "$TARGET"
+          fi
+
+      - name: Commit and push
+        id: commit
+        working-directory: target
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          if git diff --staged --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            git commit -m "chore: sync plugins from ai-enablement-prompts @ ${{ github.sha }}"
+            git push origin "${{ steps.branch.outputs.name }}"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install gh CLI
+        run: |
+          type -p gh > /dev/null || (
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg &&
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg &&
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null &&
+            sudo apt-get update &&
+            sudo apt-get install gh -y
+          )
+
+      - name: Open PR
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh pr create \
+            --repo bitovi/claude-plugins \
+            --title "chore: sync plugins from ai-enablement-prompts" \
+            --body "Automated sync of plugins and marketplace from [bitovi/ai-enablement-prompts@${{ github.sha }}](https://github.com/bitovi/ai-enablement-prompts/commit/${{ github.sha }})" \
+            --base main \
+            --head "${{ steps.branch.outputs.name }}"

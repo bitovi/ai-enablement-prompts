@@ -1,0 +1,8 @@
+{
+  "name": "react",
+  "description": "Core React component development patterns — modlet structure, component extraction, registry, reuse, and validation. No external dependencies required.",
+  "author": {
+    "name": "Bitovi",
+    "url": "https://www.bitovi.com"
+  }
+}
