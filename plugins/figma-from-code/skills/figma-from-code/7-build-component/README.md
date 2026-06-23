@@ -1,6 +1,6 @@
 # Per-Component Build & Review (Phase 3 Inner Loop)
 
-This folder contains two sub-skills and a shared step library that together implement the full per-component build-and-review pipeline. The **Build** sub-skill (7a) analyzes source code and constructs the Figma component. The **Review/Fix** sub-skill (7b) compares the result against the live app, iterates fixes, and writes the final outcome. The tier builder (6-build-tier) calls this pair for every component in every tier during Phase 3.
+This folder contains a single unified skill (`SKILL.md`) and a shared step library that together implement the full per-component build-and-review pipeline. The skill analyzes source code, constructs the Figma component, compares it against the live app, iterates fixes, and writes the final outcome. The orchestrator dispatches one agent per component during Phase 3, processing tiers in order.
 
 ## What It Does
 
@@ -8,9 +8,7 @@ Takes a single component's source code, builds it as a Figma component (with var
 
 If a component already exists in Figma before this run, the pipeline writes a `needs_authorization` status and stops. No existing component is modified without explicit user approval.
 
-## The Build Sub-skill (Steps 1–3)
-
-Defined in `7a/SKILL.md`. Handles analysis, construction, and initial screenshot.
+## Build Phase (Steps 1–3)
 
 ### Step 1: Analyze
 
@@ -28,11 +26,9 @@ Maps Tailwind/CSS properties to Figma equivalents — layout mode, alignment, sp
 
 ### Step 3: Screenshot
 
-Captures the built Figma component via `get_screenshot`. For component sets, screenshots the resolved default variant rather than the set itself. Writes a handoff file (`{ComponentName}-built.json`) containing status, node ID, and metadata.
+Captures the built Figma component via `get_screenshot`. For component sets, screenshots the resolved default variant rather than the set itself.
 
-## The Review/Fix Sub-skill (Steps 4–7)
-
-Defined in `7b-review-fix-component/SKILL.md`. Handles comparison, iterative fixes, tracking, and result writing.
+## Review/Fix Phase (Steps 4–7)
 
 ### Step 4: Compare
 
@@ -62,7 +58,7 @@ A component passes when its pixel-diff match percentage is **≥ 90%** and its b
 
 ## Step Files
 
-The `steps/` directory contains shared instructions used by both sub-skills:
+Step instruction files live directly in this folder:
 
 | File | Purpose |
 |------|---------|

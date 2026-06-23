@@ -6,12 +6,12 @@
 
 ## Iteration model
 
-Step 5 runs up to 3 fix iterations inline:
+Step 5 runs up to 2 fix iterations inline:
 
 - **Iteration 1**: Diagnose only from `diff.png`, `comparison.json`, and the step inputs. Focus on comparison data, not build assumptions.
 - **Iterations 2 and 3**: Continue with the context of previous fix attempts and their outcomes.
 
-If all 3 iterations complete without reaching `verdict: "match"`, exit the loop. Return `status: "partial_match"` and proceed to Step 6 — do **not** retry Step 5.
+If all 2 iterations complete without reaching `verdict: "match"`, exit the loop. Return `status: "partial_match"` and proceed to Step 6 — do **not** retry Step 5.
 
 If the verdict is `minor_diff` or `mismatch`, enter the fix loop.
 
@@ -207,7 +207,7 @@ await walk(figma.getNodeById('{nodeId}'));
 return JSON.stringify(report);
 ```
 
-4. Record the returned report in the final result file as `rebindSweep` (see the result schema in `7b-review-fix-component/SKILL.md`).
+4. Record the returned report in the final result file as `rebindSweep` (see the result schema in `SKILL.md`).
 
 5. If `rebindSweep.created` is non-empty, update `color-index.json` so later components and tiers see the new Discovered variables:
 
