@@ -19,8 +19,10 @@ export const meta = {
 // orchestrator ({skillRoot}/SKILL.md) — one architecture, two entry points.
 // Every substantive phase is ONE subagent reading its own SKILL.md; this script
 // only sequences dispatches, threads contract fields between them, and keeps
-// state.json in sync via haiku bookkeeping agents (phase subagents never write
-// state.json, matching the orchestrator's "subagents do not modify state" rule).
+// state.json in sync via lightweight bookkeeping agents that are tool-restricted
+// to bash + file I/O only (no Figma MCP loaded) and given prescriptive shell
+// commands rather than prose instructions. Phase subagents never write state.json,
+// matching the orchestrator's "subagents do not modify state" rule.
 //
 // Differences from the interactive skill orchestrator, inherent to batch mode:
 // - No pause points: the run does not stop for user confirmation between waves
@@ -36,6 +38,10 @@ export const meta = {
 //             precapture, asset discovery, icon preamble).
 //   haiku   — pure file I/O / shell wrappers with no judgment (state init,
 //             hydration, registry writes, collectors, cleanup).
+//
+// Tool policy: haiku bookkeeping agents restrict tools to bash + file I/O via
+// `allowedTools` to prevent loading Figma MCP schemas into their context (~5k
+// tokens per agent avoided). Only agents that need `use_figma` omit the filter.
 
 const PHASE_ORDER = [
   'phase0a', 'phase0b', 'phase1', 'phase2', 'phase2_5', 'phase3', 'phase4', 'phase5'
@@ -59,6 +65,12 @@ function shouldRunPhase(phaseId, startPhase, endPhase) {
 
 function shouldRunWave(waveName, startPhase, endPhase) {
   return WAVE_MEMBERS[waveName].some(p => shouldRunPhase(p, startPhase, endPhase))
+}
+
+function chunkArray(arr, size) {
+  const out = []
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
+  return out
 }
 
 // --- Schemas ---
@@ -232,6 +244,15 @@ const COMPONENT_BUILD_SCHEMA = {
   required: ['name', 'success', 'status']
 }
 
+const COMPONENT_BATCH_SCHEMA = {
+  type: 'object',
+  properties: {
+    success: { type: 'boolean' },
+    results: { type: 'array', items: COMPONENT_BUILD_SCHEMA }
+  },
+  required: ['success', 'results']
+}
+
 const COLLECT_SCHEMA = {
   type: 'object',
   properties: {
@@ -275,20 +296,40 @@ const VALIDATION_SCHEMA = {
 
 // --- Args ---
 
-// Normalize: the Workflow runtime may deliver args as a JSON string rather than
-// a parsed object. Also accept a space-separated "devServerUrl figmaUrl" pair
-// from the skill slash-command invocation.
+// Normalize: the Workflow runtime may deliver args as a JSON string, a plain
+// string, or a parsed object — all three forms must work. Common gotcha: the
+// destructuring `const { fileKey } = args` yields `undefined` when args is a
+// string, causing the "fileKey is required" gate to fire immediately.
 const _a = (function() {
-  if (!args) return {}
-  if (typeof args === 'object') return args
-  var s = String(args).trim()
-  if (s.charAt(0) === '{') { try { return JSON.parse(s) } catch (_) { return {} } }
+  // Guard against `args` being undefined (ReferenceError) or null
+  var raw
+  try { raw = typeof args !== 'undefined' ? args : null } catch (_) { raw = null }
+  if (raw == null) return {}
+
+  // Already a parsed object (the happy path)
+  if (typeof raw === 'object' && !Array.isArray(raw)) return raw
+
+  // String: try JSON parse first, then fall back to space-separated token parsing
+  var s = String(raw).trim()
+  if (!s) return {}
+
+  // JSON object string
+  if (s.charAt(0) === '{') { try { return JSON.parse(s) } catch (_) { /* fall through */ } }
+
+  // JSON array (shouldn't happen, but guard against it)
+  if (s.charAt(0) === '[') return {}
+
+  // Space-separated tokens: Figma URLs, bare file keys, dev server URLs
   var result = {}
   var parts = s.split(/\s+/)
   for (var i = 0; i < parts.length; i++) {
     var m = parts[i].match(/figma\.com\/(?:design|file)\/([A-Za-z0-9_-]+)/)
     if (m) { result.fileKey = m[1] }
     else if (parts[i].indexOf('http') === 0) { result.devServerUrl = parts[i] }
+    else if (!result.fileKey && /^[A-Za-z0-9_-]{10,}$/.test(parts[i])) {
+      // Bare file key (alphanumeric, 10+ chars, no URL scheme)
+      result.fileKey = parts[i]
+    }
   }
   return result
 })()
@@ -298,6 +339,8 @@ const {
   startPhase = 'phase0a',
   endPhase = null,
 } = _a
+
+const componentBatchSize = Math.max(1, Number(_a.componentBatchSize || 1))
 
 // Per-project config, mirroring the orchestrator's config block. Persisted into
 // state.json → config so sub-skill {placeholder} references resolve for every
@@ -317,7 +360,12 @@ const config = {
 }
 
 if (!fileKey) {
-  log('ERROR: fileKey is required. Pass it via args: { fileKey: "your-file-key" }')
+  log('ERROR: fileKey is required.')
+  log('Usage: pass a Figma URL or file key as args.')
+  log('  Examples:')
+  log('    { "fileKey": "abc123XYZ" }')
+  log('    https://www.figma.com/design/abc123XYZ/My-File')
+  log('    abc123XYZ')
   return { error: 'fileKey is required' }
 }
 
@@ -373,21 +421,30 @@ async function withRetry(label, attempts, isOk, fn) {
   return result
 }
 
+// Tool restriction for haiku bookkeeping agents — excludes Figma MCP tools
+// from the agent's available tool set so their schemas (~5k tokens) are never
+// loaded. If the runtime does not support allowedTools, this is ignored.
+const BOOKKEEPING_TOOLS = ['Bash', 'Read', 'Write', 'Edit']
+
 function materializeRegistryPrompt(reason) {
+  var json = JSON.stringify(builtComponents)
   return [
-    'Write the current builtComponents registry to disk so downstream agents read the correct registry. (' + reason + ')',
+    'Write the builtComponents registry to disk. (' + reason + ')',
     '',
-    'Write this JSON to ' + TEMP + '/builtComponents.json:',
-    JSON.stringify(builtComponents),
+    'Run this exact command:',
+    'cat << ' + "'REGISTRY_EOF'" + ' > ' + TEMP + '/builtComponents.json',
+    json,
+    'REGISTRY_EOF',
   ].join('\n')
 }
 
 function mergeStatePrompt(fields) {
+  var patch = JSON.stringify(fields)
   return [
-    'Update the figma-from-code state ledger.',
+    'Deep-merge a patch into the state ledger.',
     '',
-    'Read ' + TEMP + '/state.json, deep-merge the following fields into it, and write it back:',
-    JSON.stringify(fields, null, 2),
+    'Run this exact command:',
+    'node ' + SKILL + '/scripts/merge-state.js ' + TEMP + '/state.json ' + "'" + patch + "'",
   ].join('\n')
 }
 
@@ -424,7 +481,7 @@ if (needsHydration) {
       'If state.json does not exist, return { fileKey: "", tiers: [], builtComponents: {}, figmaNodes: {} }',
       'to signal that prior phases have not been run.',
     ].join('\n'),
-    { label: 'hydrate-state', phase: 'Hydrate', model: 'haiku', schema: HYDRATION_SCHEMA }
+    { label: 'hydrate-state', phase: 'Hydrate', model: 'haiku', allowedTools: BOOKKEEPING_TOOLS, schema: HYDRATION_SCHEMA }
   )
 
   if (!hydrated || !hydrated.fileKey || !Array.isArray(hydrated.tiers) || hydrated.tiers.length === 0) {
@@ -450,7 +507,7 @@ if (needsHydration) {
   // a stale/missing on-disk registry and builds would run blind. Materialize now.
   await withRetry('materialize-built-hydrate', 2, r => r && r.success, () =>
     agent(materializeRegistryPrompt('mid-pipeline start'), {
-      label: 'materialize-built-hydrate', phase: 'Hydrate', model: 'haiku', schema: STATE_UPDATE_SCHEMA
+      label: 'materialize-built-hydrate', phase: 'Hydrate', model: 'haiku', allowedTools: BOOKKEEPING_TOOLS, schema: STATE_UPDATE_SCHEMA
     })
   )
 }
@@ -498,7 +555,7 @@ if (shouldRunWave('wave1', startPhase, endPhase)) {
         '',
         'If ' + TEMP + '/state.json already exists, overwrite it (this is a fresh run).',
       ].join('\n'),
-      { label: 'init-state', phase: 'Discovery', model: 'haiku', schema: STATE_UPDATE_SCHEMA }
+      { label: 'init-state', phase: 'Discovery', model: 'haiku', allowedTools: BOOKKEEPING_TOOLS, schema: STATE_UPDATE_SCHEMA }
     )
   )
   if (!initResult || !initResult.success) {
@@ -594,7 +651,7 @@ if (shouldRunWave('wave1', startPhase, endPhase)) {
       '',
       'Return: success, renameCount (from script stdout), tiers, builtComponents, preExistingComponents, preExistingScreens (all from the regenerated discovery-summary.json).',
     ].join('\n'),
-    { label: 'normalize', phase: 'Normalize', model: 'haiku', schema: NORMALIZE_SCHEMA }
+    { label: 'normalize', phase: 'Normalize', model: 'haiku', allowedTools: BOOKKEEPING_TOOLS, schema: NORMALIZE_SCHEMA }
   )
 
   if (!normResult || !normResult.success || !normResult.tiers.length) {
@@ -687,7 +744,7 @@ if (shouldRunWave('wave2', startPhase, endPhase)) {
       phases: { phase1: 'complete', phase2: 'complete' },
       variableMapPath: tokens.variableMapPath || (TEMP + '/variables.json'),
       figmaNodes: figmaNodes,
-    }), { label: 'update-state-setup', phase: 'Setup', model: 'haiku', schema: STATE_UPDATE_SCHEMA })
+    }), { label: 'update-state-setup', phase: 'Setup', model: 'haiku', allowedTools: BOOKKEEPING_TOOLS, schema: STATE_UPDATE_SCHEMA })
   )
 }
 
@@ -733,10 +790,12 @@ if (shouldRunWave('wave3', startPhase, endPhase)) {
 
   await withRetry('update-state-precapture', 2, r => r && r.success, () =>
     agent(mergeStatePrompt({ phases: { phase2_5: 'complete' } }), {
-      label: 'update-state-precapture', phase: 'Pre-capture', model: 'haiku', schema: STATE_UPDATE_SCHEMA
+      label: 'update-state-precapture', phase: 'Pre-capture', model: 'haiku', allowedTools: BOOKKEEPING_TOOLS, schema: STATE_UPDATE_SCHEMA
     })
   )
 }
+
+
 
 // === WAVE 4: Icon Preamble + Tier Builds (tiers sequential, one subagent per tier) ===
 
@@ -749,7 +808,7 @@ if (shouldRunWave('wave4', startPhase, endPhase)) {
   // builtComponents.json is the on-disk pass mechanism for all Phase 3/4 agents.
   await withRetry('materialize-built', 2, r => r && r.success, () =>
     agent(materializeRegistryPrompt('before icon preamble'), {
-      label: 'materialize-built', phase: 'Build Icons', model: 'haiku', schema: STATE_UPDATE_SCHEMA
+      label: 'materialize-built', phase: 'Build Icons', model: 'haiku', allowedTools: BOOKKEEPING_TOOLS, schema: STATE_UPDATE_SCHEMA
     })
   )
 
@@ -757,7 +816,7 @@ if (shouldRunWave('wave4', startPhase, endPhase)) {
     [
       'Build all Figma icon and asset components from SVG data before tier processing.',
       '',
-      'Read and follow the skill instructions at: ' + SKILL + '/6-build-tier/icon-preamble/SKILL.md',
+      'Read and follow the skill instructions at: ' + SKILL + '/6-icon-preamble/SKILL.md',
       '',
       'Inputs:',
       '  fileKey: ' + fileKey,
@@ -781,22 +840,22 @@ if (shouldRunWave('wave4', startPhase, endPhase)) {
   builtComponents = { ...builtComponents, ...preamble.created }
   log('Icons: ' + (preamble.totalCreated || 0) + ' created, ' + (preamble.totalSkipped || 0) + ' skipped, ' + (preamble.totalFailed || 0) + ' failed')
 
-  // Persist the merged registry so Tier 1 sees the icons even if the preamble
-  // agent did not update builtComponents.json itself.
-  await withRetry('materialize-built-post-icons', 2, r => r && r.success, () =>
-    agent(materializeRegistryPrompt('after icon preamble'), {
-      label: 'materialize-built-post-icons', phase: 'Build Icons', model: 'haiku', schema: STATE_UPDATE_SCHEMA
-    })
-  )
-  await withRetry('update-state-icons', 2, r => r && r.success, () =>
-    agent(mergeStatePrompt({ builtComponents: builtComponents }), {
-      label: 'update-state-icons', phase: 'Build Icons', model: 'haiku', schema: STATE_UPDATE_SCHEMA
-    })
+  // Persist the merged registry + state in a single agent (consolidated from two
+  // separate haiku calls to reduce MCP context-load overhead).
+  await withRetry('persist-post-icons', 2, r => r && r.success, () =>
+    agent(
+      [
+        materializeRegistryPrompt('after icon preamble'),
+        '',
+        'Then also: ' + mergeStatePrompt({ builtComponents: builtComponents }),
+      ].join('\n'),
+      { label: 'persist-post-icons', phase: 'Build Icons', model: 'haiku', allowedTools: BOOKKEEPING_TOOLS, schema: STATE_UPDATE_SCHEMA }
+    )
   )
 
-  // --- Tier builds: one subagent per COMPONENT for fresh context each time.
-  //     Tiers run sequentially because tier N+1 instances tier N components.
-  //     Within a tier, components build sequentially (Figma API rate limits). ---
+  // --- Tier builds: one subagent per small COMPONENT BATCH for lower overhead
+  //     while preserving manageable context windows. Tiers run sequentially
+  //     because tier N+1 instances tier N components. ---
   for (let i = 0; i < tiers.length; i++) {
     const tierDef = tiers[i]
     phase('Build Tiers')
@@ -845,25 +904,28 @@ if (shouldRunWave('wave4', startPhase, endPhase)) {
     const tierFrameId = tierSetup.tierFrameId
     figmaNodes['tier' + tierDef.tier + 'FrameId'] = tierFrameId
 
-    // --- Build each component with its own fresh-context subagent ---
+    // --- Build each small component batch with a fresh-context subagent ---
     const tierCompleted = {}
     const tierFailed = []
+    const batches = chunkArray(toBuild, componentBatchSize)
 
-    for (let j = 0; j < toBuild.length; j++) {
-      const componentName = toBuild[j]
-      log('  [' + (j + 1) + '/' + toBuild.length + '] Building: ' + componentName)
+    log('Tier ' + tierDef.tier + ': processing in ' + batches.length + ' batch(es) of up to ' + componentBatchSize + ' component(s) each')
 
-      const compResult = await agent(
+    for (let j = 0; j < batches.length; j++) {
+      const batch = batches[j]
+      log('  [batch ' + (j + 1) + '/' + batches.length + '] Building: ' + batch.join(', '))
+
+      const batchResult = await agent(
         [
-          'Build and validate one Figma component: ' + componentName,
+          'Build and validate this batch of Figma components: ' + batch.join(', '),
           '',
-          'Read the build skill at: ' + SKILL + '/7-build-component/7a/SKILL.md',
-          'Then read the review/fix skill at: ' + SKILL + '/7-build-component/7b-review-fix-component/SKILL.md',
-          'Execute both phases for this single component (analyze → build → screenshot → compare → fix loop → rebind → track → return).',
+          'Read the build+review skill at: ' + SKILL + '/7-build-component/SKILL.md',
+          'Execute the full pipeline for EACH component in the batch (analyze → build → screenshot → compare → fix loop → rebind → track → return).',
+          'Process the batch sequentially in the order provided.',
           '',
           'Inputs:',
           '  fileKey: ' + fileKey,
-          '  componentName: ' + componentName,
+          '  componentNames: ' + JSON.stringify(batch),
           '  tier: ' + tierDef.tier,
           '  tierFrameId: ' + tierFrameId,
           '  componentsPageId: ' + (figmaNodes.componentsPageId || ''),
@@ -871,39 +933,49 @@ if (shouldRunWave('wave4', startPhase, endPhase)) {
           '  componentsRoot: ' + JSON.stringify(config.componentsRoot),
           '',
           'Read builtComponents.json from ' + TEMP + '/ for instance lookup.',
-          'Read component-map.json from ' + TEMP + '/ for this component\'s metadata (sourcePath, tier, children, screenshotUrl, selector).',
+          'Read component-map.json from ' + TEMP + '/ for each component\'s metadata (sourcePath, tier, children, screenshotUrl, selector).',
           '',
-          'Write the result to ' + TEMP + '/build-results/' + componentName + '.json',
+          'Write one result file per component to ' + TEMP + '/build-results/{ComponentName}.json.',
           'Do NOT modify state.json or builtComponents.json.',
           '',
-          'Return: name, success, status (success/partial_match/failed/rejected/needs_authorization), nodeId (component or component-set node ID if built), matchPct, reason (if failed/rejected).',
+          'Return: success, results[], where each results[] item is:',
+          '  { name, success, status (success/partial_match/failed/rejected/needs_authorization), nodeId, matchPct, reason }',
+          'Include exactly one results[] item per requested component name.',
         ].join('\n'),
-        { label: 'build-' + componentName, phase: 'Build Tiers', schema: COMPONENT_BUILD_SCHEMA }
+        { label: 'build-tier-' + tierDef.tier + '-batch-' + (j + 1), phase: 'Build Tiers', schema: COMPONENT_BATCH_SCHEMA }
       )
 
-      if (compResult && compResult.success && compResult.nodeId) {
-        tierCompleted[componentName] = compResult.nodeId
-        builtComponents[componentName] = compResult.nodeId
-      } else {
-        const failure = {
-          name: componentName,
-          status: (compResult && compResult.status) || 'failed',
-          reason: (compResult && compResult.reason) || 'agent returned no result',
-          tier: tierDef.tier
+      const byName = {}
+      if (batchResult && Array.isArray(batchResult.results)) {
+        for (let k = 0; k < batchResult.results.length; k++) {
+          const r = batchResult.results[k]
+          if (r && r.name) byName[r.name] = r
         }
-        tierFailed.push(failure)
-        failedComponents.push(failure)
       }
 
-      // Update on-disk registry after each component so the next component
-      // in this tier can resolve it as an instance if needed.
-      await withRetry('registry-update-' + componentName, 2, r => r && r.success, () =>
-        agent(materializeRegistryPrompt('after building ' + componentName), {
-          label: 'registry-' + componentName, phase: 'Build Tiers', model: 'haiku', schema: STATE_UPDATE_SCHEMA
-        })
-      )
+      for (let k = 0; k < batch.length; k++) {
+        const componentName = batch[k]
+        const compResult = byName[componentName]
+
+        if (compResult && compResult.success && compResult.nodeId) {
+          tierCompleted[componentName] = compResult.nodeId
+          builtComponents[componentName] = compResult.nodeId
+        } else {
+          const failure = {
+            name: componentName,
+            status: (compResult && compResult.status) || 'failed',
+            reason: (compResult && compResult.reason) || ((batchResult && batchResult.success) ? 'missing result for component in batch response' : 'agent returned no result'),
+            tier: tierDef.tier
+          }
+          tierFailed.push(failure)
+          failedComponents.push(failure)
+        }
+      }
     }
 
+    // Consolidated per-tier finalization: write registry to disk, run the
+    // collect script, and merge tierFrameId into state — all in one agent
+    // dispatch instead of two (reduces MCP context-load overhead per tier).
     log('Tier ' + tierDef.tier + ' complete: ' + Object.keys(tierCompleted).length + ' built, ' + tierFailed.length + ' failed')
 
     // If nothing was built at all AND there were failures, stop — the tier
@@ -921,32 +993,34 @@ if (shouldRunWave('wave4', startPhase, endPhase)) {
       }
     }
 
-    // collect-tier-results.js writes build-tier{N}.json, merges completed node IDs
-    // into state.builtComponents + builtComponents.json, and sets tierProgress —
-    // from the per-component result files (ground truth), not the agent's return.
-    await withRetry('collect-tier-' + tierDef.tier, 2, r => r && r.success, () =>
-      agent(
-        [
-          'Finalize Tier ' + tierDef.tier + ' results.',
-          '',
-          'Run: node ' + SKILL + '/scripts/collect-tier-results.js --tier ' + tierDef.tier + ' --components "' + tierDef.components.join(',') + '" --tier-frame-id "' + tierFrameId + '"',
-          'Read its one-line JSON stdout for the counts.',
-          '',
-          'Then read ' + TEMP + '/state.json, merge this into it, and write it back:',
-          JSON.stringify({ figmaNodes: { ['tier' + tierDef.tier + 'FrameId']: tierFrameId } }),
-          '',
-          'Return: success, completed (count), failed (count).',
-        ].join('\n'),
-        { label: 'collect-tier-' + tierDef.tier, phase: 'Build Tiers', model: 'haiku', schema: COLLECT_SCHEMA }
+    if (Object.keys(tierCompleted).length > 0) {
+      await withRetry('finalize-tier-' + tierDef.tier, 2, r => r && r.success, () =>
+        agent(
+          [
+            'Finalize Tier ' + tierDef.tier + ': persist registry, collect results, and update state.',
+            '',
+            '1. Write the builtComponents registry:',
+            materializeRegistryPrompt('after tier ' + tierDef.tier + ' completes'),
+            '',
+            '2. Run the collect script:',
+            'node ' + SKILL + '/scripts/collect-tier-results.js --tier ' + tierDef.tier + ' --components "' + tierDef.components.join(',') + '" --tier-frame-id "' + tierFrameId + '"',
+            'Read its one-line JSON stdout for the counts.',
+            '',
+            '3. ' + mergeStatePrompt({ figmaNodes: { ['tier' + tierDef.tier + 'FrameId']: tierFrameId } }),
+            '',
+            'Return: success, completed (count from collect stdout), failed (count from collect stdout).',
+          ].join('\n'),
+          { label: 'finalize-tier-' + tierDef.tier, phase: 'Build Tiers', model: 'haiku', allowedTools: BOOKKEEPING_TOOLS, schema: COLLECT_SCHEMA }
+        )
       )
-    )
+    }
   }
 
   await withRetry('update-state-phase3', 2, r => r && r.success, () =>
     agent(mergeStatePrompt({
       phases: { phase3: failedComponents.length === 0 ? 'complete' : 'complete_with_failures' },
       phase3Failures: failedComponents.map(f => f.name),
-    }), { label: 'update-state-phase3', phase: 'Build Tiers', model: 'haiku', schema: STATE_UPDATE_SCHEMA })
+    }), { label: 'update-state-phase3', phase: 'Build Tiers', model: 'haiku', allowedTools: BOOKKEEPING_TOOLS, schema: STATE_UPDATE_SCHEMA })
   )
 
   log('Phase 3 complete: ' + Object.keys(builtComponents).length + ' total built components, ' + failedComponents.length + ' failed')
@@ -983,8 +1057,8 @@ if (shouldRunWave('wave5', startPhase, endPhase)) {
             '  devServerUrl: ' + config.devServerUrl,
             '  pagesRoot: ' + config.pagesRoot,
             '',
-            'Read builtComponents.json from ' + TEMP + '/ for component instance lookup.',
-            'preExistingScreens (DO NOT MODIFY without authorization): ' + JSON.stringify(preExistingScreens),
+            'Read builtComponents.json from ' + TEMP + '/ for component instance lookup (required for building screen).',
+            'Do NOT modify preExistingScreens without explicit authorization from the user.',
             '',
             'Write your result to ' + TEMP + '/build-results/screens/' + screen.screenName + '.json',
             'Do NOT modify state.json.',
@@ -1032,7 +1106,7 @@ if (shouldRunWave('wave5', startPhase, endPhase)) {
           '',
           'Return: success, completed (count), failed (count).',
         ].join('\n'),
-        { label: 'collect-screens', phase: 'Build Screens', model: 'haiku', schema: COLLECT_SCHEMA }
+        { label: 'collect-screens', phase: 'Build Screens', model: 'haiku', allowedTools: BOOKKEEPING_TOOLS, schema: COLLECT_SCHEMA }
       )
     )
   }
@@ -1053,9 +1127,10 @@ if (shouldRunWave('wave6', startPhase, endPhase)) {
       'Inputs:',
       '  fileKey: ' + fileKey,
       '  devServerUrl: ' + config.devServerUrl,
-      '  figmaNodes: ' + JSON.stringify(figmaNodes),
-      '  preExistingScreens (compare read-only, no fix loop): ' + JSON.stringify(preExistingScreens),
       '  buildOrder tierCount: ' + tiers.length,
+      '',
+      'Read state.json from ' + TEMP + '/ to get figmaNodes and preExistingScreens.',
+      'Compare assembled screens against app screenshots read-only; do not modify pre-existing screens without authorization.',
       '',
       'Write validation-summary.json to ' + TEMP + '/ and the full report to .temp/figma-validation/report.md.',
       'Stop the Playwright server if running (per the skill).',
@@ -1078,29 +1153,42 @@ if (shouldRunWave('wave6', startPhase, endPhase)) {
     }
   }
 
-  await withRetry('update-state-phase5', 2, r => r && r.success, () =>
-    agent(mergeStatePrompt({ phases: { phase5: 'complete' } }), {
-      label: 'update-state-phase5', phase: 'Validate', model: 'haiku', schema: STATE_UPDATE_SCHEMA
-    })
+  await withRetry('finalize-phase5', 2, r => r && r.success, () =>
+    agent(
+      [
+        'Finalize Phase 5: update state and stop the Playwright server.',
+        '',
+        '1. ' + mergeStatePrompt({ phases: { phase5: 'complete' } }),
+        '',
+        '2. Stop the Playwright server (best-effort, idempotent):',
+        'kill $(cat ' + TEMP + '/pw-server.pid 2>/dev/null) 2>/dev/null; rm -f ' + TEMP + '/pw-server.pid ' + TEMP + '/pw-endpoint.txt',
+        'Ignore any "no such process" / kill failure.',
+        '',
+        'Return: success.',
+      ].join('\n'),
+      { label: 'finalize-phase5', phase: 'Validate', model: 'haiku', allowedTools: BOOKKEEPING_TOOLS, schema: STATE_UPDATE_SCHEMA }
+    )
   )
 }
 
-// === CLEANUP: stop the browser/Playwright server regardless of which phases ran ===
+// === CLEANUP: stop the browser/Playwright server if build phases ran ===
 // The validate wave stops it on success, but a run ended early via endPhase (or
 // one where validation didn't reach the teardown step) would otherwise orphan the
 // server and hold its port. Idempotent — a no-op if nothing is running.
 
-await agent(
-  [
-    'Stop the figma-from-code Playwright server if it is still running so its port is freed. This is a best-effort, idempotent cleanup — if nothing is running, do nothing and still return success.',
-    '',
-    'Run: kill $(cat ' + TEMP + '/pw-server.pid 2>/dev/null) 2>/dev/null; rm -f ' + TEMP + '/pw-server.pid ' + TEMP + '/pw-endpoint.txt',
-    'Ignore any "no such process" / kill failure (the server was already stopped).',
-    '',
-    'Return: success.',
-  ].join('\n'),
-  { label: 'cleanup-browser-server', model: 'haiku', schema: STATE_UPDATE_SCHEMA }
-)
+if (shouldRunWave('wave3', startPhase, endPhase) || shouldRunWave('wave4', startPhase, endPhase) || shouldRunWave('wave5', startPhase, endPhase) || shouldRunWave('wave6', startPhase, endPhase)) {
+  await agent(
+    [
+      'Stop the figma-from-code Playwright server if it is still running so its port is freed. This is a best-effort, idempotent cleanup — if nothing is running, do nothing and still return success.',
+      '',
+      'Run: kill $(cat ' + TEMP + '/pw-server.pid 2>/dev/null) 2>/dev/null; rm -f ' + TEMP + '/pw-server.pid ' + TEMP + '/pw-endpoint.txt',
+      'Ignore any "no such process" / kill failure (the server was already stopped).',
+      '',
+      'Return: success.',
+    ].join('\n'),
+    { label: 'cleanup-browser-server', model: 'haiku', allowedTools: BOOKKEEPING_TOOLS, schema: STATE_UPDATE_SCHEMA }
+  )
+}
 
 // === FINAL SUMMARY ===
 
