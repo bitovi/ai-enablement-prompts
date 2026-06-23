@@ -1,3 +1,9 @@
+---
+name: figma-from-code-discovery-assets
+description: Subagent for figma-from-code Phase 0b. Discovers all Lucide icons and SVG file assets imported across the codebase via static analysis. Extracts SVG markup and maps which components use which icons. No dev server or Figma access needed.
+model: claude-sonnet-4-5
+---
+
 # Skill: Icon & Asset Discovery
 
 Discovers all Lucide icons and SVG file assets imported across the codebase, extracts their SVG markup, and maps which components use which icons. This is pure static analysis — no dev server or Figma access needed.

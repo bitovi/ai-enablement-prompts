@@ -1,3 +1,9 @@
+---
+name: figma-from-code-setup-tokens
+description: Subagent for figma-from-code Phase 1. Creates Figma variable collections from the project's CSS and Tailwind tokens, extracts the CSS-variable-to-Figma-variable-ID map, and pre-computes all CSS colors as sRGB values.
+model: claude-sonnet-4-5
+---
+
 # Skill: Setup Tokens (Phase 1)
 
 Creates Figma variable collections from the project's CSS and Tailwind tokens, extracts the CSS-variable-to-Figma-variable-ID map, and pre-computes all CSS colors as sRGB values. Runs as a subagent dispatched by the orchestrator, or standalone when tokens change.

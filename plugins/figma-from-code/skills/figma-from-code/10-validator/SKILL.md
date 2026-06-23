@@ -1,3 +1,9 @@
+---
+name: figma-from-code-validator
+description: Standalone validator for a completed figma-from-code rebuild. Navigates the live app, screenshots each component in its natural context, and compares against the matching Figma variant. Also used by the Phase 5 orchestrator agent as a reference for the Component App Map and comparison scripts.
+model: claude-sonnet-4-5
+---
+
 # Skill: Figma Rebuild Validator
 
 Validates the output of `figma-from-code` by navigating the live app, screenshotting each component in its natural context, and comparing against the **matching Figma variant** — not the entire component set. Produces a structured report with side-by-side screenshots.

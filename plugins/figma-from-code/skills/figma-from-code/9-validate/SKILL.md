@@ -1,3 +1,9 @@
+---
+name: figma-from-code-validate
+description: Subagent for figma-from-code Phase 5. Validates the completed Figma rebuild by comparing assembled screen frames against app screenshots. Runs fix loops on mismatched screens and produces a structured report.
+model: claude-sonnet-4-5
+---
+
 # Skill: Validate + Fix (Phase 5)
 
 Validates the completed Figma rebuild by comparing full-page screen frames against app screenshots. Instead of re-validating every individual component (which already passed during Phase 3's build loop), this phase checks the assembled screens as a whole — verifying that components compose correctly and that nothing was lost during screen assembly. Runs fix loops on mismatched screens and produces a structured report. Runs as a subagent dispatched by the orchestrator.

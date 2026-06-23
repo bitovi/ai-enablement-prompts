@@ -1,3 +1,9 @@
+---
+name: figma-from-code-build-screens
+description: Subagent for figma-from-code Phase 4. Builds full-page screen frames in Figma by composing built component instances into 1440×900 layouts. Validates each screen against app screenshots and iterates up to 3 fix passes.
+model: claude-sonnet-4-5
+---
+
 # Skill: Build Screens (Phase 4)
 
 Builds full-page screen frames in Figma by composing built component instances into `screenBodySize` layouts (default 1440x900). Each screen assembles navigation, list panels, and detail/form panels using instances of components already created in Phase 3, then validates them visually against an app screenshot — iterating up to 3 fix passes to converge on visual fidelity.

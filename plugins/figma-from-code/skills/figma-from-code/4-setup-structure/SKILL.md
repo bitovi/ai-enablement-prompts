@@ -1,3 +1,9 @@
+---
+name: figma-from-code-setup-structure
+description: Subagent for figma-from-code Phase 2. Creates the Figma file page skeleton, foundations documentation frames, and container frames needed by later phases. Requires variable collections to already exist.
+model: claude-sonnet-4-5
+---
+
 # Skill: Setup File Structure (Phase 2)
 
 Creates the Figma file page skeleton, foundations documentation frames, and container frames needed by later phases. Runs as a subagent dispatched by the orchestrator, or standalone to set up a fresh Figma file for a code-to-Figma rebuild.

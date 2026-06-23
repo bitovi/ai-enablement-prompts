@@ -1,3 +1,9 @@
+---
+name: figma-from-code-discovery-components
+description: Subagent for figma-from-code Phase 0a. Discovers the complete component architecture of a web application via browser crawling and static code scanning. Produces a topologically-sorted build order and inspects the target Figma file for existing pages and components.
+model: claude-sonnet-4-5
+---
+
 # Skill: Component Discovery
 
 Discovers the complete component architecture of a web application by combining two methods: (1) browser crawling to find runtime components with routes and selectors, and (2) static code scanning to find all components including those not rendered during the crawl (modals, inline-edit variants, conditional renders, etc.). Produces a merged, topologically-sorted build order (leaves first, layouts last). Also inspects the target Figma file to report existing pages, variable collections, and components.

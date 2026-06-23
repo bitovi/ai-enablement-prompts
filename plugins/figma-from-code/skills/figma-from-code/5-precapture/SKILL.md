@@ -1,3 +1,9 @@
+---
+name: figma-from-code-precapture
+description: Subagent for figma-from-code Phase 2.5. Captures app screenshots and structured text content for every UI component before Figma building begins. Produces a unified batch manifest to minimize browser navigations.
+model: claude-sonnet-4-5
+---
+
 # Skill: Pre-capture Reference Material
 
 Captures app screenshots and structured text content for every UI component before any Figma building begins. Decoupling capture from building means build agents never launch Chromium. A single unified batch manifest (sorted by URL) minimizes page navigations and avoids multi-subagent overhead.
