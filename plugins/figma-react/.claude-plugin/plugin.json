@@ -1,0 +1,8 @@
+{
+  "name": "figma-react",
+  "description": "Full Figma-to-React lifecycle — design analysis, component implementation, visual sync, and Code Connect mapping. Requires Figma MCP.",
+  "author": {
+    "name": "Bitovi",
+    "url": "https://www.bitovi.com"
+  }
+}

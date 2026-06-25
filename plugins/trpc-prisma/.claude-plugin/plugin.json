@@ -1,0 +1,8 @@
+{
+  "name": "trpc-prisma",
+  "description": "Type-safety patterns for tRPC + Prisma monorepos — AppRouter type inference across packages, and instruction templates for server, shared, and client packages.",
+  "author": {
+    "name": "Bitovi",
+    "url": "https://www.bitovi.com"
+  }
+}
