@@ -1,0 +1,9 @@
+{
+  "name": "figma-from-code",
+  "description": "Rebuild a Figma design system from a running web app's codebase: discovery, design tokens, tiered component builds with visual fix loops, screen assembly, and pixel-diff validation.",
+  "version": "2.0.0",
+  "author": {
+    "name": "Ryan Spencer",
+    "email": "rspencer@bitovi.com"
+  }
+}

@@ -14,6 +14,11 @@
       "description": "Skills for creating new agent skills for Claude Code and VS Code Copilot"
     },
     {
+      "name": "figma-from-code",
+      "source": "./plugins/figma-from-code",
+      "description": "Rebuild a Figma design system from a running web app's codebase"
+    },
+    {
       "name": "implement-workflow",
       "source": "./plugins/implement-workflow",
       "description": "End-to-end feature implementation workflow: design, build, test, self-review via a code-reviewer agent, then prep a PR."
