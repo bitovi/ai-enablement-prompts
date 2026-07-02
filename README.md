@@ -14,22 +14,28 @@ Our goal is to bridge the gap between general-purpose AI models and project-spec
 
 ## Repository Structure
 
-Prompts in this repo are organized into **high-level categories** based on what they help the AI accomplish:
+This repo has two kinds of content:
 
-- **`/understanding-code`** – Prompt chains that help AI understand and document existing codebases
-- **`/writing-code`** – Prompt chains that assist with implementing new functionality based on external input (e.g. Jira tickets)
+- **[`/plugins`](./plugins)** – Installable Claude Code / VS Code Copilot **plugins** (skills, agents, hooks). See [PLUGINS.md](./PLUGINS.md) for the full catalog and installation steps.
+- **Standalone prompt chains** – Plain markdown prompts you can paste directly into any AI chat agent, no plugin install required. Organized by what they help the AI accomplish:
+  - **[`/understanding-code`](./understanding-code)** – Prompts that help AI understand and document existing codebases
+  - **[`/writing-code`](./writing-code)** – Prompts that assist with implementing new functionality (specs, Jira ticket automation, React patterns)
+  - **[`/writing-stories`](./writing-stories)** – Prompts that turn Figma designs, screenshots, or images into user stories and Jira tickets
+  - **[`/figma`](./figma)** – Figma-to-React skills (design, implement, sync, Code Connect)
+  - **[`/creating-prompts`](./creating-prompts)** – Meta-skill for authoring new agent skills
+  - **[`/crop-image`](./crop-image)** – A single prompt for precisely cropping an image
 
-Each subfolder contains one or more prompts or prompt chains, each with its own `README.md` explaining how to use it.
+Some of these also have a packaged plugin version — where that's the case, the folder's `README.md` links to it. Use whichever fits your workflow: paste the prompt directly, or install the plugin for the maintained, auto-loading version. Every subfolder has its own `README.md` explaining what it contains and how to run it.
 
 ## What's Inside
 
-Here are a few currently available prompt chains:
+A few examples of what's available (see [PLUGINS.md](./PLUGINS.md) for the full, current plugin catalog):
 
 ### 1. Developer Docs Generator
 
-**Path:** `understanding-code/instruction-generation`
+**Plugin:** `code` → `instruction-generation` skill
 
-Generates a `copilot-instruction.md` file that helps AI tools operate effectively within your codebase. Ideal for onboarding AI tools (or humans) with deep, structured context.
+Generates a `copilot-instructions.md` file that helps AI tools operate effectively within your codebase. Ideal for onboarding AI tools (or humans) with deep, structured context.
 
 **Features:**
 
@@ -38,7 +44,7 @@ Generates a `copilot-instruction.md` file that helps AI tools operate effectivel
 - Extracts coding patterns and naming conventions
 - Documents features and domain logic
 
-→ [View prompt chain](./understanding-code/instruction-generation/README.md)
+→ [View the `code` plugin](./plugins/code/README.md)
 
 ### 2. Jira Ticket Automation
 
@@ -59,16 +65,22 @@ Takes a Jira ticket number and walks the AI through implementing the described f
 
 ### Requirements
 
-- [GitHub Copilot Chat](https://github.com/features/copilot) or an equivalent AI chat agent with tool access
+- [Claude Code](https://claude.com/claude-code) or [GitHub Copilot Chat](https://github.com/features/copilot) (or an equivalent AI agent with tool access)
 - MCP (Model Context Protocol) server access if required (for Jira, Figma, attachments, etc.)
 - A valid codebase or ticket to operate on
 
-### Getting Started
+### Getting Started — Plugins (recommended)
+
+1. Add the marketplace: `claude plugin marketplace add bitovi/ai-enablement-prompts --scope project`
+2. Install the plugin(s) you need, e.g. `claude plugin install code@bitovi-ai-enablement --scope project`
+3. Full instructions, the plugin catalog, and VS Code Copilot / Copilot CLI setup are in [PLUGINS.md](./PLUGINS.md).
+
+### Getting Started — Standalone Prompt Chains
 
 1. Open the repo: https://github.com/bitovi/ai-enablement-prompts
 2. Navigate to the prompt folder you're interested in.
-3. Read the `README.md` for that prompt chain to understand the flow and inputs.
-4. Open Copilot Chat and paste the example input provided.
+3. Read the `README.md` for that prompt chain to understand the flow, inputs, and whether a packaged plugin version is also available.
+4. Open your AI agent's chat and paste the example input provided.
 5. Provide the necessary parameters:
    - `{TICKET_NUMBER}` for Jira-based prompts
    - `{OUTPUT_FOLDER}` for saving generated results
