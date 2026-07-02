@@ -11,6 +11,8 @@ Skills are packaged as plugins using the **Claude plugin format** (`.claude-plug
 | Plugin | Description | Required MCPs |
 |--------|-------------|---------------|
 | `creating-prompts` | Meta-skills for creating new agent skills (Claude + Copilot) | — |
+| `figma-from-code` | Rebuilds a Figma design system from a running web app's codebase | Figma |
+| `implement-workflow` | End-to-end feature implementation: design, build, test, self-review, prep a PR | — |
 | `code` | Spec workflow, signatures, instruction-generation, document-feature, create-skill | — |
 | `react` | Modlet pattern, component extraction, registry, reuse, validation | — |
 | `react-mock` | Zod sample data, data model management, feature implementation | — |
