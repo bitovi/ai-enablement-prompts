@@ -44,6 +44,11 @@
       "description": "Full Figma-to-React lifecycle — design analysis, component implementation, visual sync, and Code Connect mapping. Requires Figma MCP."
     },
     {
+      "name": "figma-to-lwc-component",
+      "source": "./plugins/figma-to-lwc-component",
+      "description": "Guides implementation of repo-native Lightning Web Components from Figma designs, with optional Storybook and SLDS verification workflows. Requires Figma MCP."
+    },
+    {
       "name": "playwright",
       "source": "./plugins/playwright",
       "description": "Playwright-based QA workflows — E2E testing, debugging, responsive verification, visual diffing, and pixel-perfect orchestration. Requires Playwright MCP."

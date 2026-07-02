@@ -15,6 +15,7 @@ Skills are packaged as plugins using the **Claude plugin format** (`.claude-plug
 | `react` | Modlet pattern, component extraction, registry, reuse, validation | — |
 | `react-mock` | Zod sample data, data model management, feature implementation | — |
 | `figma-react` | Figma-to-React lifecycle: design, implement, sync, Code Connect | Figma |
+| `figma-to-lwc-component` | Figma-to-LWC component implementation with Storybook, SLDS, and Salesforce DX guidance | Figma |
 | `playwright` | E2E testing, debugging, responsive design, visual diff, pixel-perfect | Playwright |
 | `trpc-prisma` | Cross-package types, AppRouter inference, package instructions | — |
 

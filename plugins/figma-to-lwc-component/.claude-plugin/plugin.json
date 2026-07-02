@@ -1,0 +1,8 @@
+{
+  "name": "figma-to-lwc-component",
+  "description": "Guides implementation of repo-native Lightning Web Components from Figma designs, with optional Storybook and SLDS verification workflows. Requires Figma MCP.",
+  "author": {
+    "name": "Bitovi",
+    "url": "https://www.bitovi.com"
+  }
+}
