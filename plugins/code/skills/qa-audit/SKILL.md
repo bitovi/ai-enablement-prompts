@@ -1,19 +1,19 @@
 ---
-name: deep-qa
+name: qa-audit
 description: Deep manual QA for a named non-trivial scope. Creates a local append-only audit receipt.
 user-invocable: true
 disable-model-invocation: true
 ---
 
-# deep-qa
+# Skill: Deep QA Audit for a Scope
 
 Use only for a named non-trivial focus. This is manual because it spends real time and tools.
 
 Before auditing:
 
 1. Define the exact focus and scope.
-2. Gitignore `.deep-qa/`.
-3. Create `.deep-qa/<scope>/AUDIT.md`.
+2. Gitignore `.qa-audit/`.
+3. Create `.qa-audit/<scope>/AUDIT.md`.
 4. Record scope, start time, and five phase headings. Timestamp every finding, confirmation, fix, and deferral.
 
 Phase 1, self-review:
