@@ -8,7 +8,7 @@ The **code** plugin bundles a set of workflow skills for planning, implementing,
 
 - **Build implementation specs** — gather context, create detailed plans with numbered questions
 - **Review specs** — check for contradictions, redundancy, and completeness
-- **Red-team specs** — adversarial review that finds gaps, weak assumptions, and blind spots before implementation
+- **Adversarially review specs** — challenge assumptions and hunt for gaps and blind spots before implementation
 - **Implement specs** — phase-by-phase execution with pause points and verification
 - **Generate API signatures** — summarize APIs with mermaid dependency graphs
 - **Onboard to a codebase** — multi-step analysis that produces an AI instruction file
@@ -23,7 +23,7 @@ No MCP servers required. All skills work with standard file system access.
 |-------|-------------|
 | `spec` | Build a detailed implementation plan with context gathering and numbered questions |
 | `spec-check` | Review an implementation spec for contradictions, redundancy, and completeness |
-| `spec-red-team` | Adversarial review of plans and specs — finds gaps, weak assumptions, edge cases, and blind spots before implementation. Differs from `spec-check` (internal consistency) and `code-reviewer` (post-implementation code review) |
+| `spec-review` | Adversarial review of plans and specs — finds gaps, weak assumptions, edge cases, and blind spots before implementation. Differs from `spec-check` (internal consistency) and `code-reviewer` (post-implementation code review) |
 | `spec-implement` | Implement a spec phase-by-phase with pause points and build/test/lint verification |
 | `spec-answered-questions` | Incorporate answered questions back into a spec document |
 | `signatures` | Generate a signatures.md summarizing API signatures with a mermaid dependency graph |

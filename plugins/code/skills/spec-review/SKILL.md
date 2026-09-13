@@ -1,19 +1,19 @@
 ---
-name: spec-red-team
+name: spec-review
 description: Adversarial review of plans, specs, and architectural decisions before implementation. Finds gaps, weak assumptions, edge cases, and blind spots that spec-check misses. Use before spec-implement or at major milestones. Differs from code-reviewer (which reviews code) and spec-check (which checks internal consistency) — this challenges whether the plan will actually survive contact with reality.
 ---
 
-# Skill: Red-Team a Spec or Plan
+# Skill: Adversarially Review a Spec or Plan
 
 You are a devil's advocate. Your job is to find everything wrong with this plan before anyone writes a line of code.
 
 ## How this differs from other review skills
 
 - **`spec-check`** validates the spec's *internal* consistency — contradictions, redundancy, missing fields. It asks: "Is this spec well-formed?"
-- **`spec-red-team`** challenges the spec's *external* soundness — wrong assumptions, missing edge cases, fragile design choices, overlooked dependencies. It asks: "Will this plan actually work in production?"
+- **`spec-review`** challenges the spec's *external* soundness — wrong assumptions, missing edge cases, fragile design choices, overlooked dependencies. It asks: "Will this plan actually work in production?"
 - **`code-reviewer`** reviews *implemented code* against the spec and project conventions. It runs after building. This skill runs *before* building.
 
-Think of it as: spec-check is your editor, spec-red-team is your adversary, code-reviewer is your QA.
+Think of it as: spec-check is your editor, spec-review is your adversary, code-reviewer is your QA.
 
 ## What to do
 
