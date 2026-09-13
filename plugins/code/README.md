@@ -8,10 +8,12 @@ The **code** plugin bundles a set of workflow skills for planning, implementing,
 
 - **Build implementation specs** — gather context, create detailed plans with numbered questions
 - **Review specs** — check for contradictions, redundancy, and completeness
+- **Adversarially review specs** — challenge assumptions and hunt for gaps and blind spots before implementation
 - **Implement specs** — phase-by-phase execution with pause points and verification
 - **Generate API signatures** — summarize APIs with mermaid dependency graphs
 - **Onboard to a codebase** — multi-step analysis that produces an AI instruction file
 - **Document features** — comprehensive feature requirement documents
+- **Run a deep QA audit** — manually-triggered, multi-phase verification of a named scope with a recorded audit trail
 - **Create new skills** — scaffold skills for Claude Code and VS Code Copilot
 
 No MCP servers required. All skills work with standard file system access.
@@ -22,8 +24,10 @@ No MCP servers required. All skills work with standard file system access.
 |-------|-------------|
 | `spec` | Build a detailed implementation plan with context gathering and numbered questions |
 | `spec-check` | Review an implementation spec for contradictions, redundancy, and completeness |
+| `spec-review` | Adversarial review of plans and specs — finds gaps, weak assumptions, edge cases, and blind spots before implementation. Differs from `spec-check` (internal consistency) and `code-reviewer` (post-implementation code review) |
 | `spec-implement` | Implement a spec phase-by-phase with pause points and build/test/lint verification |
 | `spec-answered-questions` | Incorporate answered questions back into a spec document |
+| `qa-audit` | Manually-triggered (not model-invoked), deliberately heavyweight QA pass for a named non-trivial scope. Runs five phases — self-review, ten-pass deep verification, independent counter-review, live smoke test, ten-pass final verification — logging every finding, fix, and deferral to an append-only `.qa-audit/<scope>/AUDIT.md` receipt. Complements `spec-review` as the post-implementation gate in the spec → review → implement → audit chain |
 | `signatures` | Generate a signatures.md summarizing API signatures with a mermaid dependency graph |
 | `instruction-generation` | Onboard an AI agent to an unknown codebase via a 6-step analysis chain |
 | `document-feature` | Create comprehensive feature requirement documents with user stories and workflows |
